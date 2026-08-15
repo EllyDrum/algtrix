@@ -1900,17 +1900,17 @@ fieldset.wizard-step{ border:0; margin:0; padding:0; min-width:0; }
           </div>
         </div>
 
-        <!-- name + data-netlify="true" + the hidden form-name input are what let Netlify's
-             build-time HTML parser detect and register this form (required even though the
-             actual submission below happens via fetch/JS, not a plain HTML POST); the
-             honeypot field is Netlify's standard spam trap, hidden from real visitors via
-             inline display:none (deliberately not .sr-only, since it must stay invisible to
-             assistive tech too, not just sighted users) but left in the DOM for bots to fill. -->
-        <form class="stack contact-wizard" id="contact-form" name="contato" method="POST" data-netlify="true" netlify-honeypot="bot-field" data-reveal novalidate>
-          <input type="hidden" name="form-name" value="contato">
-          <p style="display:none;">
-            <label>Não preencha este campo: <input name="bot-field" tabindex="-1" autocomplete="off"></label>
-          </p>
+        <!-- Site is static (GitHub Pages, no server-side build step), so form delivery
+             goes through Web3Forms: a free (250 submissions/month) form-to-email API that
+             needs no backend of our own — just a POST with this access key from the JS
+             handler below. access_key is a per-account routing token, not a secret that
+             grants any access to anything beyond "deliver a submission to this inbox", so
+             it's fine to ship in client-side HTML same as any other public API key of this
+             kind. botcheck is Web3Forms' own honeypot convention: hidden from real visitors,
+             left for bots to fill; the handler rejects the submission if it's non-empty. -->
+        <form class="stack contact-wizard" id="contact-form" data-reveal novalidate>
+          <input type="hidden" name="access_key" value="9ad3b6ef-1cc8-42c7-a2ee-728f14db3778">
+          <input type="checkbox" name="botcheck" style="display:none;" tabindex="-1" autocomplete="off">
           <div class="wizard-progress" aria-hidden="true">
             <span class="wizard-dot" data-dot></span>
             <span class="wizard-dot" data-dot></span>
@@ -3322,22 +3322,14 @@ fieldset.wizard-step{ border:0; margin:0; padding:0; min-width:0; }
       status.textContent = t('form.status.preparing', currentLang);
       if(submitBtn){ submitBtn.disabled = true; submitBtn.classList.add('is-loading'); }
 
-      /* Netlify Forms: a plain application/x-www-form-urlencoded POST to "/" with
-         form-name matching the form's declared name is all their form-handling
-         backend needs to capture the submission and fire whatever notification
-         (e.g. an email to the team) is configured for this site in Site settings ->
-         Forms -> Form notifications. No API key, backend code, or extra service
-         required — this is why the form only needs name="contato"/data-netlify="true"
-         plus the hidden form-name input added in the markup above. Falls back to the
-         previous mailto: draft (pre-filled, not auto-sent) so a submission is never
-         silently lost if the fetch itself fails (e.g. site not yet deployed on
-         Netlify, or a network hiccup) rather than just showing a dead-end error. */
-      function encodeFormData(data){
-        return Object.keys(data).map(function(k){
-          return encodeURIComponent(k) + '=' + encodeURIComponent(data[k]);
-        }).join('&');
-      }
-
+      /* Web3Forms: the site is static (GitHub Pages, no server-side build step), so
+         there's no Netlify-style backend to capture a plain form POST. Web3Forms is a
+         free (250 submissions/month) form-to-email API — a single JSON POST with the
+         access_key from the markup above is enough for them to deliver the submission
+         to whatever inbox that key is registered to. Falls back to the previous
+         mailto: draft (pre-filled, not auto-sent) so a submission is never silently
+         lost if the request itself fails (offline visitor, API hiccup) rather than
+         just showing a dead-end error. */
       function mailtoFallback(){
         var notProvided = t('form.mailto.notProvided', currentLang);
         var subject = encodeURIComponent(t('form.mailto.subjectPrefix', currentLang) + ' ' + servico + ', ' + nome);
@@ -3351,14 +3343,16 @@ fieldset.wizard-step{ border:0; margin:0; padding:0; min-width:0; }
           mensagem
         ];
         var body = encodeURIComponent(bodyLines.join('\n'));
-        window.location.href = 'mailto:leandro.oliveira@algtrix.com?subject=' + subject + '&body=' + body;
+        window.location.href = 'mailto:contatos@algtrix.com?subject=' + subject + '&body=' + body;
       }
 
-      fetch('/', {
+      fetch('https://api.web3forms.com/submit', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: encodeFormData({
-          'form-name': 'contato',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({
+          access_key: form.access_key.value,
+          botcheck: form.botcheck.checked,
+          subject: t('form.mailto.subjectPrefix', currentLang) + ' ' + servico + ', ' + nome,
           servico: servico,
           nome: nome,
           empresa: empresa,
@@ -3366,8 +3360,9 @@ fieldset.wizard-step{ border:0; margin:0; padding:0; min-width:0; }
           telefone: telefone,
           mensagem: mensagem
         })
-      }).then(function(res){
-        if(!res.ok) throw new Error('Netlify Forms responded with ' + res.status);
+      }).then(function(res){ return res.json().then(function(data){ return { ok: res.ok, data: data }; }); })
+        .then(function(result){
+        if(!result.ok || !result.data || result.data.success === false) throw new Error('Web3Forms error');
         status.classList.remove('is-loading');
         status.classList.add('is-success');
         status.textContent = t('form.status.success', currentLang);

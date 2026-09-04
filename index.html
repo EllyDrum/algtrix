@@ -14,7 +14,7 @@
 <meta property="og:url" content="https://algtrix.com.br/">
 <meta property="og:title" id="og-title" content="Algtrix | Transformamos incerteza em inteligência">
 <meta property="og:description" id="og-description" content="Consultoria atuarial e inteligência de dados para a sustentabilidade da saúde suplementar.">
-<meta property="og:image" content="https://static.wixstatic.com/media/9c4ce7_221fe3d98f394b629a72f24a223cbc1d~mv2.png">
+<meta property="og:image" content="https://algtrix.com.br/assets/algtrix-logo.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" id="tw-title" content="Algtrix | Transformamos incerteza em inteligência">
 <meta name="twitter:description" id="tw-description" content="Consultoria atuarial e inteligência de dados para a sustentabilidade da saúde suplementar.">
@@ -717,12 +717,21 @@ legend{ padding:0; }
   transition:background-color var(--dur-4) var(--ease-out);
 }
 .partner:hover{ background:var(--ink-850); }
-.partner img{
-  height:58px; width:auto; max-width:100%; object-fit:contain; object-position:left center;
-  filter:grayscale(1); opacity:.55;
-  transition:filter var(--dur-4) var(--ease-out), opacity .5s var(--ease-out);
+/* the plate is what makes a dark third-party mark legible here without
+   altering a single one of its colours */
+.partner-plate{
+  display:flex; align-items:center; justify-content:flex-start;
+  background:#F2F0F7; border-radius:var(--r-sm);
+  padding:1.15rem 1.4rem; min-height:104px;
+  opacity:.72;
+  transition:opacity var(--dur-4) var(--ease-out), transform var(--dur-4) var(--ease-out);
 }
-.partner:hover img,.partner:focus-within img{ filter:none; opacity:1; }
+.partner-plate img{ height:auto; width:auto; max-height:58px; max-width:100%; }
+.partner:hover .partner-plate,.partner:focus-within .partner-plate{ opacity:1; transform:translateY(-2px); }
+@media (prefers-reduced-motion:reduce){
+  .partner-plate{ opacity:1; }
+  .partner:hover .partner-plate{ transform:none; }
+}
 .partner-note{
   font-size:.875rem; line-height:1.6; color:var(--fg-dim);
   opacity:0; transform:translateY(6px);
@@ -1079,7 +1088,7 @@ legend{ padding:0; }
 <header class="site-header" id="site-header">
   <div class="header-inner">
     <a class="brand" href="#inicio" aria-label="Algtrix, Início" data-i18n-aria-label="nav.ariaBrand">
-      <img src="https://static.wixstatic.com/media/9c4ce7_221fe3d98f394b629a72f24a223cbc1d~mv2.png" alt="Algtrix" width="120" height="26">
+      <img src="assets/algtrix-logo.png" alt="Algtrix" width="102" height="26">
     </a>
     <button class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="main-nav" aria-label="Abrir menu" data-i18n-aria-label="nav.openMenu"><span></span></button>
     <nav class="main-nav" id="main-nav" aria-label="Navegação principal" data-i18n-aria-label="nav.ariaMain">
@@ -1422,11 +1431,11 @@ legend{ padding:0; }
     <h2 class="h-section" data-reveal data-i18n="partners.title">Nossos parceiros</h2>
     <div class="partner-row" data-reveal>
       <div class="partner">
-        <img src="https://static.wixstatic.com/media/9c4ce7_b4048adf149e46c894dd3ad51c0d9c6f~mv2.png" alt="Flórida Consultoria" loading="lazy" width="150" height="34">
+        <div class="partner-plate"><img src="assets/parceiro-florida.png" alt="Flórida Consultoria" loading="lazy" width="210" height="71"></div>
         <p class="partner-note">Flórida Consultoria</p>
       </div>
       <div class="partner">
-        <img src="https://static.wixstatic.com/media/9c4ce7_0f4cdd57dfe947ff92f32982a97427c7~mv2.png" alt="NF Sociedade de Advogados" loading="lazy" width="150" height="34">
+        <div class="partner-plate"><img src="assets/parceiro-nf.png" alt="NF Sociedade de Advogados" loading="lazy" width="130" height="81"></div>
         <p class="partner-note">NF Sociedade de Advogados</p>
       </div>
     </div>
@@ -1444,7 +1453,7 @@ legend{ padding:0; }
       <a class="btn btn-ghost" href="#solucoes"><span data-i18n="close.ctaSecondary">Conhecer nossas soluções</span><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4"/></svg></a>
     </div>
     <div class="close-mark">
-      <img src="https://static.wixstatic.com/media/9c4ce7_221fe3d98f394b629a72f24a223cbc1d~mv2.png" alt="Algtrix" width="140" height="30" loading="lazy">
+      <img src="assets/algtrix-logo.png" alt="Algtrix" width="117" height="30" loading="lazy">
       <p class="close-signature" data-i18n="close.signature">Transformamos dados em resultados</p>
     </div>
   </div>
@@ -1573,7 +1582,7 @@ legend{ padding:0; }
 <footer class="site-footer">
   <div class="shell footer-inner">
     <div class="footer-brand">
-      <img src="https://static.wixstatic.com/media/9c4ce7_221fe3d98f394b629a72f24a223cbc1d~mv2.png" alt="Algtrix" width="100" height="22" loading="lazy">
+      <img src="assets/algtrix-logo.png" alt="Algtrix" width="86" height="22" loading="lazy">
       <span class="footer-tag" data-i18n="footer.tagline">Transformamos dados em resultados.</span>
     </div>
     <p class="footer-legal">&copy; <span id="year">2026</span> Algtrix. <span data-i18n="footer.rights">Todos os direitos reservados.</span></p>

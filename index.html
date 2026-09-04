@@ -712,7 +712,7 @@ legend{ padding:0; }
   background:var(--line); box-shadow:0 0 0 1px var(--line);
 }
 .partner{
-  background:var(--ink-950); padding:clamp(1.5rem,3vw,2.25rem);
+  background:var(--ink-950); padding:clamp(1.25rem,2.4vw,1.75rem);
   display:flex; flex-direction:column; gap:var(--s-4);
   transition:background-color var(--dur-4) var(--ease-out);
 }
@@ -733,11 +733,11 @@ legend{ padding:0; }
   .partner:hover .partner-plate{ transform:none; }
 }
 .partner-note{
-  font-size:.875rem; line-height:1.6; color:var(--fg-dim);
-  opacity:0; transform:translateY(6px);
-  transition:opacity var(--dur-3) var(--ease-out), transform .45s var(--ease-out), color .45s;
+  font-family:var(--font-mono); font-size:.6875rem; letter-spacing:.13em; text-transform:uppercase;
+  line-height:1.5; color:var(--fg-dim);
+  transition:color var(--dur-3) var(--ease-out);
 }
-.partner:hover .partner-note,.partner:focus-within .partner-note{ opacity:1; transform:none; color:var(--fg-muted); }
+.partner:hover .partner-note,.partner:focus-within .partner-note{ color:var(--cyan-300); }
 
 /* ==========================================================================
    13 · CLOSE — the field converges back into the mark

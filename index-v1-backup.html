@@ -1,0 +1,3386 @@
+<!DOCTYPE html>
+<html lang="pt-BR" id="html-root">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="doc-title">Algtrix | Consultoria Atuarial | Transformamos Dados em Resultados</title>
+<meta name="description" id="doc-description" content="Algtrix é consultoria atuarial especializada em saúde suplementar: cálculo de riscos, avaliação de carteira, modelagem estatística e análise de dados para operadoras de saúde.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+/* ==========================================================================
+   0. DESIGN TOKENS
+   ========================================================================== */
+:root{
+  --purple-950:#1c1533;
+  --purple-900:#241a45;
+  --purple-800:#3d2d67;
+  --purple-700:#473674;
+  --purple-600:#5c4990;
+  --purple-500:#7862ad;
+  --cyan-500:#2e9aa8;
+  --cyan-400:#41b7c4;
+  --cyan-300:#7ed4dd;
+  --cyan-200:#b7e9ee;
+  --bg-light:#eaf4f6;
+  --bg-warm:#f7f5fb;
+  --ink:#170f2b;
+  --text-on-dark:#f3f0fb;
+  --muted-on-dark:#c7bfe0;
+  --muted-on-light:#5c5470;
+
+  /* display type: geometric, light-weight sans (Montserrat 300/400/500) instead of
+     a serif display face — reads as tech/institutional rather than editorial */
+  --font-display:'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-body:'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono:'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+
+  /* shadcn/ui-style tokens: one radius scale, ring-based focus, layered shadow */
+  --radius: .75rem;
+  --radius-sm: calc(var(--radius) - .35rem);
+  --radius-lg: calc(var(--radius) + .35rem);
+  --ring: var(--cyan-400);
+  --ring-offset: var(--purple-950);
+  --shadow-card: 0 1px 2px rgba(10,7,20,.04), 0 8px 24px -12px rgba(10,7,20,.35);
+  --shadow-card-hover: 0 1px 2px rgba(10,7,20,.06), 0 16px 40px -14px rgba(65,183,196,.28);
+  /* one consistent glow used wherever a border used to sit — borders are being
+     retired site-wide in favour of soft light instead of hard outlines */
+  --edge-glow: 0 0 0 1px rgba(255,255,255,.06);
+  --edge-glow-hover: 0 0 0 1px rgba(126,212,221,.22);
+
+  --container: 1180px;
+  --gutter: clamp(1.5rem, 5vw, 4rem);
+  /* consistent spacing scale used across every section for rhythm (4/8/12/16/24/32/48/64px base) */
+  --space-3xs: .25rem;
+  --space-2xs: .5rem;
+  --space-xs: .75rem;
+  --space-sm: 1rem;
+  --space-md: 1.5rem;
+  --space-lg: 2rem;
+  --space-xl: 3rem;
+  --space-2xl: 4rem;
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+html{ scroll-behavior:auto; }
+
+body{
+  margin:0;
+  background:var(--bg-warm);
+  color:var(--ink);
+  font-family:var(--font-body);
+  font-weight:400;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+  opacity:0;
+}
+body.is-ready{
+  opacity:1;
+  transition:opacity .5s ease;
+}
+@media (prefers-reduced-motion: reduce){
+  body{ opacity:1; }
+}
+
+img{ max-width:100%; display:block; }
+a{ color:inherit; text-decoration:none; }
+button{ font-family:inherit; cursor:pointer; }
+
+.container{
+  width:100%;
+  max-width:var(--container);
+  margin-inline:auto;
+  padding-inline:var(--gutter);
+  position:relative;
+  z-index:2;
+}
+
+.sr-only{
+  position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+  overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;
+}
+
+/* Skip link */
+.skip-link{
+  position:fixed; top:-100px; left:1rem; z-index:999;
+  background:var(--cyan-400); color:var(--purple-950);
+  padding:.75rem 1.25rem; border-radius:.5rem; font-weight:600;
+  transition:top .2s var(--ease-out);
+}
+.skip-link:focus{ top:1rem; }
+
+:focus-visible{
+  outline:none;
+  box-shadow:0 0 0 2px var(--ring-offset), 0 0 0 4px var(--ring);
+  border-radius:var(--radius-sm);
+}
+.on-light :focus-visible{ --ring-offset:var(--bg-warm); }
+
+/* ==========================================================================
+   1. TYPOGRAPHY SYSTEM
+   ========================================================================== */
+.eyebrow{
+  font-family:var(--font-body);
+  font-size:.78rem;
+  letter-spacing:.22em;
+  text-transform:uppercase;
+  font-weight:600;
+  color:var(--cyan-400);
+  display:flex;
+  align-items:center;
+  gap:.6em;
+  margin:0 0 1.25rem;
+}
+.eyebrow::before{
+  content:'';
+  width:2.2em; height:1px;
+  background:currentColor;
+  display:inline-block;
+  opacity:.7;
+}
+/* filled soft disc instead of an outlined ring — same read, no hard edge */
+.eyebrow .num{
+  font-variant-numeric:tabular-nums;
+  display:inline-flex; align-items:center; justify-content:center;
+  width:1.9em; height:1.9em;
+  border-radius:50%;
+  background:radial-gradient(120% 120% at 30% 20%, rgba(65,183,196,.22), rgba(65,183,196,.07) 70%);
+  box-shadow:0 0 0 3px rgba(65,183,196,.05), 0 4px 12px -4px rgba(65,183,196,.35);
+  font-size:.82em;
+}
+.on-light .eyebrow .num{ background:radial-gradient(120% 120% at 30% 20%, rgba(46,154,168,.18), rgba(46,154,168,.05) 70%); box-shadow:0 0 0 3px rgba(46,154,168,.04), 0 4px 12px -4px rgba(46,154,168,.3); }
+
+/* ---- display type system: Montserrat, light/geometric, generous negative space ----
+   Applied consistently as h1/h2/h3 everywhere (Header, Hero, Manifesto, Soluções,
+   Gráficos, Visão, Parceiros, Contato, Formulário, Footer all inherit from here —
+   no section overrides the family, only size/weight/spacing per its own scale). */
+h1,h2,h3{
+  font-family:var(--font-display);
+  font-weight:300;
+  line-height:1.08;
+  margin:0;
+  letter-spacing:-0.015em;
+  text-wrap:balance;
+}
+/* trimmed from an earlier, much larger scale (was clamp(2.75rem,7.2vw,6.4rem) —
+   102.4px at its widest): a title that size read as promotional rather than
+   as a consultancy signaling technical authority. This scale still leads the
+   page clearly but sits in a more editorial, restrained register, closer to
+   h2 in proportion so the hierarchy feels considered rather than shouted. */
+h1{ font-size:clamp(2.35rem, 5vw, 4.5rem); font-weight:300; letter-spacing:-0.02em; }
+h2{ font-size:clamp(2rem, 4.4vw, 3.4rem); font-weight:300; letter-spacing:-0.015em; }
+h3{ font-size:clamp(1.2rem, 1.9vw, 1.5rem); font-weight:500; letter-spacing:-0.005em; }
+
+.lede{
+  font-size:clamp(1.05rem, 1.6vw, 1.35rem);
+  line-height:1.6;
+  font-weight:400;
+  max-width:38ch;
+}
+.lede.wide{ max-width:56ch; }
+
+.on-dark{ color:var(--text-on-dark); }
+.on-dark .lede, .on-dark p{ color:var(--muted-on-dark); }
+.on-light{ color:var(--ink); }
+.on-light .lede, .on-light p{ color:var(--muted-on-light); }
+
+/* ==========================================================================
+   2. LAYOUT PRIMITIVES
+   ========================================================================== */
+.section{
+  position:relative;
+  padding-block:clamp(3.25rem, 8vw, 6rem);
+  isolation:isolate;
+}
+.section-bg-dark{ background:var(--purple-800); }
+.section-bg-deep{ background:var(--purple-950); }
+.section-bg-tint{ background:var(--bg-light); }
+
+.stack{ display:flex; flex-direction:column; }
+.gap-md{ gap:var(--space-md); }
+.gap-lg{ gap:var(--space-xl); }
+
+/* thin connective data-thread behind all sections */
+#thread-svg{
+  position:fixed;
+  top:0; left:50%;
+  transform:translateX(-50%);
+  width:2px;
+  height:100%;
+  pointer-events:none;
+  z-index:1;
+  opacity:.55;
+}
+@media (max-width: 720px){ #thread-svg{ display:none; } }
+@media (max-width: 640px){ .ticker-col{ display:none; } }
+
+/* ==========================================================================
+   3. HEADER / NAV
+   ========================================================================== */
+.site-header{
+  position:fixed;
+  top:0; left:0; right:0;
+  z-index:100;
+  padding:1.1rem var(--gutter);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  background:linear-gradient(to bottom, rgba(28,21,51,.55), rgba(28,21,51,0));
+  backdrop-filter:blur(6px);
+  -webkit-backdrop-filter:blur(6px);
+  transition:background .4s var(--ease-out), box-shadow .4s var(--ease-out), padding .3s var(--ease-out), backdrop-filter .4s var(--ease-out);
+}
+/* on scroll: glassier (heavier blur, lower opacity fill) rather than a flat
+   opaque bar — keeps the premium translucent read while staying legible */
+.site-header.is-scrolled{
+  background:rgba(28,21,51,.62);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+  box-shadow:0 1px 0 rgba(255,255,255,.06), 0 12px 30px -20px rgba(10,7,20,.8);
+  padding-block:.75rem;
+}
+.brand{ display:flex; align-items:center; }
+.brand img{ height:34px; width:auto; }
+
+.main-nav{ display:flex; align-items:center; gap:clamp(1.5rem, 3vw, 2.75rem); }
+.main-nav ul{
+  list-style:none; margin:0; padding:0;
+  display:flex; gap:clamp(1.1rem, 2vw, 2.2rem);
+}
+/* persistent conversion CTA in the header — always one click from "Falar com um
+   especialista", inspired by the reference's always-visible header action button */
+/* .btn.header-cta (not .header-cta alone): the generic .btn rule further down
+   the stylesheet sets its own padding/font-size at equal specificity (one
+   class each) and, being later in source order, was silently winning the
+   cascade — this pill was rendering at .btn's default size instead of the
+   smaller, more refined header treatment it was actually written for. The
+   compound selector guarantees this wins regardless of source order. */
+.btn.header-cta{
+  padding:.65rem 1.25rem;
+  font-size:.85rem;
+  box-shadow:0 6px 20px -8px rgba(65,183,196,.5);
+}
+.btn.header-cta svg{ width:.9em; height:.9em; }
+
+/* language switcher — compact "PT EN ES" text buttons, no borders (same
+   glow-instead-of-outline language as the rest of the site), sits after the
+   header CTA so it never displaces the logo or crowds the nav links. */
+.lang-switch{ display:flex; align-items:center; gap:.25rem; }
+.lang-btn{
+  background:none; border:0; padding:.4rem .55rem;
+  font-family:var(--font-body); font-size:.78rem; font-weight:600; letter-spacing:.04em;
+  color:var(--muted-on-dark); opacity:.75;
+  border-radius:var(--radius-sm);
+  transition:opacity .2s ease, color .2s ease, background .2s ease;
+}
+.lang-btn:hover, .lang-btn:focus-visible{ opacity:1; color:var(--text-on-dark); background:rgba(255,255,255,.07); }
+.lang-btn.is-active{ opacity:1; color:var(--cyan-300); background:rgba(65,183,196,.14); }
+
+.main-nav a{
+  font-size:.92rem;
+  font-weight:500;
+  color:var(--text-on-dark);
+  opacity:.85;
+  position:relative;
+  padding-block:.3rem;
+}
+.main-nav a::after{
+  content:'';
+  position:absolute; left:0; right:0; bottom:-2px;
+  height:2px; background:var(--cyan-400);
+  transform:scaleX(0); transform-origin:left;
+  transition:transform .3s var(--ease-out);
+}
+.main-nav a:hover, .main-nav a:focus-visible, .main-nav a.is-active{ opacity:1; }
+.main-nav a:hover::after, .main-nav a:focus-visible::after, .main-nav a.is-active::after{ transform:scaleX(1); }
+
+.nav-toggle{
+  display:none;
+  position:relative;
+  background:none; border:0; color:var(--text-on-dark);
+  width:40px; height:40px; padding:0;
+  align-items:center; justify-content:center;
+  border-radius:var(--radius-sm);
+}
+.nav-toggle svg{
+  position:absolute; width:20px; height:20px;
+  transition:opacity .22s var(--ease-out), transform .22s var(--ease-out);
+}
+.nav-toggle .icon-close{ opacity:0; transform:rotate(-40deg) scale(.7); }
+.nav-toggle[aria-expanded="true"] .icon-open{ opacity:0; transform:rotate(40deg) scale(.7); }
+.nav-toggle[aria-expanded="true"] .icon-close{ opacity:1; transform:rotate(0) scale(1); }
+.nav-toggle:active{ transform:scale(.94); }
+
+@media (max-width: 780px){
+  .nav-toggle{ display:flex; }
+  .main-nav{
+    position:fixed; inset:0 0 0 auto;
+    width:min(78vw, 320px); height:100vh;
+    background:var(--purple-950);
+    transform:translateX(100%);
+    transition:transform .38s var(--ease-drawer);
+    padding:6rem 2rem 2rem;
+    flex-direction:column;
+    align-items:stretch;
+    justify-content:flex-start;
+  }
+  .main-nav.is-open{ transform:translateX(0); }
+  .header-cta{ margin-top:2rem; justify-content:center; }
+  .main-nav ul{ flex-direction:column; gap:1.5rem; }
+  .main-nav a{ font-size:1.15rem; }
+  /* language switcher moves into the drawer under the CTA — bigger touch
+     targets than the desktop header version, still no impact on the logo
+     or the rest of the drawer's layout */
+  .lang-switch{ margin-top:1.75rem; justify-content:center; gap:.5rem; }
+  .lang-btn{ font-size:.95rem; padding:.6rem .9rem; }
+  .nav-scrim{
+    position:fixed; inset:0; background:rgba(10,7,20,.55);
+    opacity:0; pointer-events:none; transition:opacity .3s;
+    z-index:90;
+  }
+  .nav-scrim.is-open{ opacity:1; pointer-events:auto; }
+}
+
+/* ==========================================================================
+   4. BUTTONS
+   ========================================================================== */
+.btn{
+  display:inline-flex; align-items:center; gap:.6rem;
+  padding:1rem 1.9rem;
+  border-radius:100px;
+  font-weight:600; font-size:.95rem;
+  letter-spacing:.01em;
+  border:1px solid transparent;
+  transition:transform .2s var(--ease-out), box-shadow .3s var(--ease-out), background .28s ease, color .28s ease, border-color .28s ease;
+  white-space:nowrap;
+}
+.btn:active{ transform:scale(.97); }
+.btn:disabled, .btn.is-loading{ opacity:.7; cursor:not-allowed; }
+.btn:disabled:hover, .btn.is-loading:hover{ transform:none; }
+/* premium primary: elegant pill radius, depth via layered shadow, discreet glow
+   (not a bright border), smooth hover lift, quick microanimation on press */
+/* cyan -> blue -> violet, so the primary action reads as more than "a solid
+   color like the rest of the site" — a deliberate premium gradient treatment */
+.btn-primary{
+  position:relative;
+  overflow:hidden;
+  background:linear-gradient(120deg, var(--cyan-300), var(--cyan-400) 55%, var(--purple-500));
+  color:var(--purple-950);
+  box-shadow:0 1px 0 rgba(255,255,255,.35) inset, 0 10px 26px -10px rgba(65,183,196,.5);
+  isolation:isolate;
+}
+/* the Hero's own instance gets a touch more presence — it's the first CTA a
+   visitor sees, so it earns slightly more glow than repeat instances elsewhere */
+.btn-hero-primary{
+  padding-inline:2.15rem;
+  box-shadow:0 1px 0 rgba(255,255,255,.35) inset, 0 14px 34px -10px rgba(65,183,196,.55), 0 0 40px -18px rgba(120,98,173,.5);
+}
+/* shimmer sweep — decorative only, gated to hover-capable pointers, single pass */
+.btn-primary::after{
+  content:'';
+  position:absolute; inset:0;
+  background:linear-gradient(115deg, transparent 40%, rgba(255,255,255,.5) 50%, transparent 60%);
+  transform:translateX(-120%);
+  z-index:-1;
+}
+@media (hover:hover) and (pointer:fine){
+  .btn-primary:hover{
+    transform:translateY(-2px);
+    box-shadow:0 1px 0 rgba(255,255,255,.4) inset, 0 16px 34px -10px rgba(65,183,196,.6);
+    background:linear-gradient(155deg, var(--cyan-200), var(--cyan-300));
+  }
+  .btn-primary:hover:active{ transform:scale(.97); }
+  .btn-primary:hover::after{
+    transform:translateX(120%);
+    transition:transform .65s var(--ease-in-out);
+  }
+}
+/* softened outline, no bright border — reads as a quiet secondary action */
+.btn-ghost{
+  background:rgba(255,255,255,.04);
+  border-color:rgba(255,255,255,.16);
+  color:var(--text-on-dark);
+}
+@media (hover:hover) and (pointer:fine){
+  .btn-ghost:hover{
+    border-color:rgba(126,212,221,.4);
+    background:rgba(65,183,196,.09);
+    color:var(--cyan-300);
+    transform:translateY(-2px);
+  }
+}
+
+/* flex-shrink:0 — without it, a button whose text is long relative to its
+   available width (e.g. the header CTA's full translated phrase inside the
+   narrow mobile drawer) squeezes its icon down to 0 width before the
+   nowrap text gives up any space, since the icon is the only flex child
+   with no intrinsic minimum content size. The icon should never be the one
+   that silently disappears. */
+.btn svg{ width:1em; height:1em; flex-shrink:0; }
+
+/* ==========================================================================
+   5. DECORATIVE VISUAL SYSTEM (abstract data / no external media)
+   ========================================================================== */
+.scene{
+  position:absolute; inset:0;
+  overflow:hidden;
+  z-index:0;
+}
+.scene::after{
+  content:'';
+  position:absolute; inset:0;
+  background:
+    radial-gradient(120% 90% at 15% 0%, rgba(65,183,196,.16), transparent 55%),
+    radial-gradient(90% 70% at 100% 100%, rgba(120,98,173,.35), transparent 60%);
+  mix-blend-mode:screen;
+  pointer-events:none;
+}
+/* Round 8: every other motion cue on the page is tied to scroll or the
+   cursor — nothing moved while a visitor just sat reading a paragraph. This
+   adds one continuous, near-imperceptible cue of life behind every section:
+   a very soft two-tone wash that drifts in a slow 48s loop. Kept to a new
+   ::before (the ::after above already owns the fixed base wash, untouched)
+   so it layers on top without disturbing any tuned gradient, orb, or
+   GSAP-driven transform elsewhere in the scene. Oversized inset and a screen
+   blend keep it additive-only — it can only ever gently lighten, never add a
+   hard edge or shift layout. */
+.scene::before{
+  content:'';
+  position:absolute; inset:-25%;
+  background:
+    radial-gradient(38% 30% at 20% 25%, rgba(65,183,196,.09), transparent 65%),
+    radial-gradient(34% 28% at 80% 75%, rgba(120,98,173,.12), transparent 65%);
+  mix-blend-mode:screen;
+  pointer-events:none;
+  will-change:transform;
+}
+@media (prefers-reduced-motion: no-preference){
+  .scene::before{ animation:scene-drift 48s ease-in-out infinite; }
+}
+@keyframes scene-drift{
+  0%, 100%{ transform:translate(0, 0) scale(1); }
+  50%{ transform:translate(-2.5%, 2%) scale(1.05); }
+}
+.grid-plane{
+  position:absolute; inset:-10% -10%;
+  background-image:
+    linear-gradient(rgba(199,191,224,.09) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(199,191,224,.09) 1px, transparent 1px);
+  background-size:48px 48px;
+  transform:perspective(900px) rotateX(58deg) translateY(0);
+  transform-origin:bottom;
+  opacity:.55;
+}
+.glow-orb{
+  position:absolute;
+  border-radius:50%;
+  filter:blur(60px);
+  opacity:.55;
+  will-change:transform;
+}
+.glow-orb.cyan{ background:radial-gradient(circle, var(--cyan-400), transparent 70%); }
+.glow-orb.violet{ background:radial-gradient(circle, var(--purple-500), transparent 70%); }
+/* a second depth plane — heavier blur, lower contrast, so it reads as sitting
+   further back in the scene than the sharper "near" orb in the same section */
+.glow-orb.far{ filter:blur(100px); opacity:.7; }
+
+/* near-invisible actuarial texture — a distribution curve, an axis, scattered
+   points — for sections that don't already carry a foreground chart of their
+   own (Soluções, Parceiros, Contato). Opacity is capped low enough on purpose
+   that it registers as "this feels like a data environment" rather than as a
+   readable chart competing with real content. */
+.data-veil{
+  position:absolute; inset:0;
+  opacity:.05;
+  pointer-events:none;
+  overflow:hidden;
+}
+.data-veil svg{ position:absolute; }
+
+/* fine data-dot texture — a restrained nod to the tech/network backgrounds of
+   the reference, reused sparingly (hero + Panorama only) so it reads as texture,
+   not decoration competing with the living-field canvas */
+.hex-texture{
+  position:absolute; inset:0;
+  background-image:radial-gradient(circle at 1px 1px, rgba(126,212,221,.5) 1px, transparent 1.6px);
+  background-size:28px 28px;
+  opacity:.3;
+  pointer-events:none;
+}
+
+/* living-field: canvas-rendered particle network, acts as our "video background"
+   without any external media file. JS drives it; see LivingField in the script. */
+canvas.living-field{
+  position:absolute; inset:0;
+  width:100%; height:100%;
+  display:block;
+  opacity:.85;
+}
+.chapter-figure canvas.living-field{ opacity:.55; }
+/* the base .85 opacity + full-strength connective-line color were tuned
+   against dark section backgrounds; on Visão's light tint the same values
+   would read as noisy static dots instead of a soft texture, so this
+   instance is dialed back to match the section's quieter, editorial tone */
+#visao canvas.living-field{ opacity:.4; }
+
+/* light sweep — a slow diagonal beam, reinforces the "cinematic" read */
+.light-sweep{
+  position:absolute; inset:-20% -60%;
+  background:linear-gradient(100deg, transparent 42%, rgba(255,255,255,.06) 48%, rgba(65,183,196,.14) 50%, rgba(255,255,255,.06) 52%, transparent 58%);
+  animation:sweep 9s var(--ease-in-out) infinite;
+  pointer-events:none;
+}
+@keyframes sweep{
+  0%,100%{ transform:translateX(-8%) translateY(-4%); }
+  50%{ transform:translateX(8%) translateY(4%); }
+}
+@media (prefers-reduced-motion: reduce){ .light-sweep{ display:none; } }
+
+/* icon badge — layered "glass sphere" treatment (gradient fill + inner bevel +
+   ambient/contact shadow + drop-shadowed icon) standing in for a true 3D
+   render: genuine photoreal 3D illustration isn't something CSS/SVG can
+   produce, so this pushes light, depth and material as far as that toolset
+   reasonably goes. Pairs with the existing pointer-tilt (.tilt-3d) for a
+   believable sense of an object catching light as the cursor moves past it. */
+.icon-badge{
+  position:relative;
+  display:inline-flex; align-items:center; justify-content:center;
+  width:4.5rem; height:4.5rem;
+  border-radius:1.4rem;
+  background:
+    radial-gradient(120% 120% at 24% 18%, rgba(255,255,255,.2), transparent 55%),
+    linear-gradient(155deg, rgba(65,183,196,.3), rgba(120,98,173,.24));
+  /* no border — depth comes entirely from the bevel/contact shadows below */
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.2),
+    inset 0 -14px 22px -16px rgba(10,7,20,.65),
+    0 20px 36px -18px rgba(10,7,20,.6);
+  margin-bottom:1.3rem;
+  transition:transform .25s var(--ease-out), box-shadow .25s var(--ease-out);
+  transform-style:preserve-3d;
+}
+.icon-badge svg{
+  width:2.1rem; height:2.1rem;
+  filter:drop-shadow(0 5px 10px rgba(10,7,20,.5));
+  transition:transform .25s var(--ease-out), filter .25s var(--ease-out);
+}
+/* chapter version sits beside an eyebrow line, so it stays a smaller accent
+   rather than competing with the Panorama cards' full-size treatment */
+.icon-badge.chapter-icon{ width:3.4rem; height:3.4rem; border-radius:1.05rem; margin-bottom:1.1rem; }
+.icon-badge.chapter-icon svg{ width:1.6rem; height:1.6rem; }
+@media (hover:hover) and (pointer:fine){
+  /* real depth interaction: perspective+rotate comes from .tilt-3d's own pointer
+     tracking; here we add translateZ so the icon visibly lifts off the surface
+     rather than just scaling in place */
+  .recap-card:hover .icon-badge,
+  .icon-badge.tilt-3d:hover{
+    transform:translateZ(18px) scale(1.07) translateY(-3px);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.26),
+      inset 0 -14px 22px -16px rgba(10,7,20,.65),
+      0 30px 50px -18px rgba(65,183,196,.55);
+  }
+  .recap-card:hover .icon-badge svg,
+  .icon-badge.tilt-3d:hover svg{
+    transform:rotate(-6deg) scale(1.12) translateZ(10px);
+    filter:drop-shadow(0 8px 18px rgba(65,183,196,.6));
+  }
+}
+
+/* domain-term chips — real subject-matter tags per discipline (not company claims) */
+.term-chips{
+  display:flex; flex-wrap:wrap; gap:.5rem;
+  margin-top:1.35rem;
+  list-style:none; padding:0;
+}
+.term-chips li{
+  font-family:var(--font-mono);
+  font-size:.72rem;
+  letter-spacing:.02em;
+  padding:.35rem .7rem;
+  border-radius:100px;
+  color:var(--muted-on-dark);
+  background:rgba(255,255,255,.055);
+}
+
+/* chart svg — shared styling for the redesigned per-chapter data visuals */
+/* touch-action:pan-y — a finger dragging mostly UP/DOWN over the chart still
+   scrolls the page normally (the browser keeps that gesture entirely); only
+   a more horizontal drag is left for JS to read as "scrub across the marks"
+   (see initChartTooltips). This is the fix for point 4: never trap scroll. */
+.chart-svg{ width:104%; max-width:none; height:auto; overflow:visible; touch-action:pan-y; }
+.chart-svg .grid-line{ stroke:rgba(199,191,224,.16); stroke-width:1; }
+.chart-svg .axis-line{ stroke:rgba(199,191,224,.3); stroke-width:1; }
+.chart-svg .draw{
+  stroke-dasharray:1;
+  stroke-dashoffset:1;
+  pathLength:1;
+}
+.chart-svg .node-pulse{
+  transform-box:fill-box;
+  transform-origin:center;
+  animation:node-pulse 2.6s ease-in-out infinite;
+}
+@keyframes node-pulse{
+  0%,100%{ filter:drop-shadow(0 0 0 rgba(65,183,196,0)); }
+  50%{ filter:drop-shadow(0 0 6px rgba(65,183,196,.9)); }
+}
+/* ---- interactive chart marks (bars, points, gauge segments) ----
+   Every mark carrying data-tooltip responds within ~200ms: it lifts/brightens,
+   the rest of the chart dims slightly, and a small label appears with the real
+   term already used in that chapter's copy (no invented figures). */
+.chart-svg [data-tooltip]{
+  cursor:pointer;
+  transform-box:fill-box;
+  transform-origin:center;
+  transition:transform .2s var(--ease-out), filter .2s var(--ease-out), opacity .2s var(--ease-out);
+}
+/* the visible dots are intentionally small (part of the chart's proportion), so pad
+   their actual pointer hit-area with an invisible stroke — a transparent stroke still
+   registers for hit-testing, giving a comfortable target without enlarging the mark
+   itself. Bars/areas are already large enough and don't need this. */
+.chart-svg circle[data-tooltip]{ stroke:rgba(0,0,0,.01); stroke-width:14px; }
+.chart-svg.is-hovering [data-tooltip]:not(.is-active){ opacity:.4; }
+.chart-svg [data-tooltip].is-active{ filter:drop-shadow(0 0 10px rgba(65,183,196,.85)); }
+.chart-svg circle[data-tooltip].is-active{ transform:scale(1.7); }
+.chart-svg rect[data-tooltip]{ transform-origin:bottom; }
+.chart-svg rect[data-tooltip].is-active{ transform:scaleY(1.045) translateY(-5px); filter:drop-shadow(0 8px 14px rgba(65,183,196,.55)) brightness(1.2); }
+.chart-svg path[data-tooltip].is-active{ filter:drop-shadow(0 0 10px rgba(65,183,196,.85)) brightness(1.25); }
+@media (hover:hover) and (pointer:fine){
+  .chart-svg circle:not([data-tooltip]):hover{
+    transform:scale(1.7);
+    filter:drop-shadow(0 0 8px rgba(65,183,196,.75));
+  }
+}
+@media (prefers-reduced-motion: reduce){
+  .chart-svg .draw{ stroke-dashoffset:0; }
+  .chart-svg circle{ transition:none; }
+}
+
+/* floating label — no card, no border, just a small dark chip with a glow,
+   consistent with "gráficos sem caixas" elsewhere on the site */
+.chart-tip{
+  position:absolute; pointer-events:none;
+  padding:.5rem .8rem;
+  background:rgba(23,15,43,.92);
+  color:var(--text-on-dark);
+  font-family:var(--font-body);
+  font-size:.76rem; font-weight:600; letter-spacing:.01em;
+  border-radius:.6rem;
+  box-shadow:0 16px 32px -14px rgba(10,7,20,.7), 0 0 0 1px rgba(126,212,221,.18);
+  opacity:0; transform:translate(-50%, -6px) scale(.94);
+  transition:opacity .18s var(--ease-out), transform .18s var(--ease-out);
+  z-index:5; white-space:nowrap;
+}
+.chart-tip.is-visible{ opacity:1; transform:translate(-50%, -12px) scale(1); }
+@media (prefers-reduced-motion: reduce){ .chart-tip{ transition:opacity .15s ease; } }
+
+/* ---- magnetic letter zoom — hero word + every major heading on the site ----
+   Letters near the cursor magnify like a loupe passing over fine print. The
+   hero's "CONSULTORIA" uses the simple single-word variant (.magnetic-word);
+   every other headline (chapter titles, Panorama, Visão, Parceiros, Contato,
+   the recap card titles) uses the two-level word+char variant (.magnetic-heading)
+   so long, multi-word headlines still wrap normally at word boundaries. */
+.magnetic-word{ display:inline-block; }
+.magnetic-word .ml,
+.magnetic-heading .char{
+  display:inline-block;
+  transform-origin:50% 70%;
+  will-change:transform;
+}
+.magnetic-heading .word{ display:inline-block; }
+@media (hover:none), (pointer:coarse), (prefers-reduced-motion: reduce){
+  .magnetic-word .ml, .magnetic-heading .char{ transform:none !important; }
+}
+
+/* ==========================================================================
+   MANIFESTO — scroll-scrubbed phrase sequence (progressive enhancement)
+   Default state (no JS / SplitText unavailable / reduced motion): a normal,
+   fully-visible stacked paragraph block, no pin, no extra scroll height.
+   Enhanced state (.manifesto-ready, added by JS only after a successful
+   build): pinned 100vh viewport, phrases stacked in the same spot, cycling.
+   ========================================================================== */
+.container-titulos{
+  position:relative;
+  width:100%;
+  background:var(--purple-950);
+  color:var(--text-on-dark);
+}
+.container-titulos::before{
+  content:'';
+  position:absolute; top:0; left:0; right:0; height:min(160px, 22vh);
+  background:linear-gradient(to bottom, rgba(0,0,0,.16), transparent);
+  pointer-events:none; z-index:1;
+}
+/* Short, cinematic — not a scroll-jack. ~150vh total means only ~50vh of
+   actual scroll drives all 5 phrases (the pinned 100vh viewport accounts for
+   the rest), so the visitor reaches Soluções quickly instead of feeling stuck. */
+.container-titulos.manifesto-ready{ height:150vh; }
+.container-sticky{
+  position:relative;
+  padding-block:clamp(4rem, 10vw, 7rem);
+}
+.manifesto-ready .container-sticky{
+  position:sticky; top:0; left:0;
+  height:100vh; padding-block:0;
+  display:flex; align-items:center; justify-content:center;
+  overflow:hidden;
+}
+/* kept faint so the field reads as atmosphere, never competes with the text
+   sitting on top of it for legibility */
+.manifesto-field{ opacity:.42; }
+/* Decisão/Resultado motifs — small, off to one side, low-opacity ceiling set
+   here; JS only scrubs between 0 and these CSS-level maximums so it can never
+   overpower the text even if the timing math is off */
+.manifesto-motif{
+  position:absolute;
+  right:4%; top:50%; transform:translateY(-50%);
+  width:min(34vw, 260px); height:auto;
+  pointer-events:none;
+}
+.manifesto-motif .motif-target, .manifesto-motif .motif-result{ opacity:0; }
+@media (max-width:900px){ .manifesto-motif{ display:none; } }
+.manifesto-inner{
+  position:relative;
+  z-index:1;
+  /* purely typographic, nothing to interact with here — guarantees the cursor
+     passing over the words can never trigger any hover state (the field canvas
+     underneath keeps its own pointer tracking independently, unaffected) */
+  pointer-events:none;
+  max-width:54rem;
+  margin-inline:auto;
+  padding-inline:var(--gutter);
+  text-align:center;
+}
+.manifesto-ready .manifesto-inner{
+  /* once .manifesto-line children go position:absolute they leave normal flow
+     entirely, so .manifesto-inner (a flex child of .container-sticky) has no
+     in-flow content left to size itself by and collapses toward 0 width —
+     give it an explicit width so the phrases still get the full text column */
+  width:100%;
+  min-height:clamp(10rem, 24vw, 18rem);
+  display:flex; align-items:center; justify-content:center;
+}
+.manifesto-kicker{
+  font-size:.8rem; letter-spacing:.3em; text-transform:uppercase;
+  color:var(--cyan-300); font-weight:600; margin-bottom:2rem; text-align:center;
+}
+.manifesto-ready .manifesto-kicker{ position:absolute; top:-4rem; left:0; right:0; }
+.manifesto-line{ margin-bottom:1.75rem; }
+.manifesto-line:last-child{ margin-bottom:0; }
+.manifesto-ready .manifesto-line{
+  position:absolute; inset:0;
+  display:flex; align-items:center; justify-content:center;
+  visibility:hidden;
+  margin-bottom:0;
+}
+.manifesto-ready .manifesto-line:first-child{ visibility:visible; }
+.manifesto-text{
+  font-family:var(--font-display); font-weight:400;
+  font-size:clamp(1.7rem, 4.4vw, 3.4rem); line-height:1.25;
+  text-wrap:balance;
+  color:var(--text-on-dark); margin:0;
+}
+.manifesto-text .char{ display:inline-block; }
+
+/* gradient text accent — used sparingly on the hero's key word */
+.text-gradient{
+  background:linear-gradient(100deg, var(--cyan-300), var(--cyan-400) 40%, var(--purple-500) 100%);
+  -webkit-background-clip:text; background-clip:text;
+  color:transparent;
+}
+
+/* numeric ticker column (abstract data motif, decorative, aria-hidden) */
+.ticker-col{
+  position:absolute;
+  font-variant-numeric:tabular-nums;
+  font-family:var(--font-body);
+  font-size:.72rem;
+  letter-spacing:.05em;
+  color:var(--cyan-300);
+  opacity:.35;
+  line-height:1.9;
+  white-space:nowrap;
+  user-select:none;
+}
+
+/* reveal element defaults — GSAP drives opacity+transform (full motion path) */
+[data-reveal]{
+  opacity:0;
+  transform:translateY(28px) scale(.98);
+}
+
+/* reduced-motion reveal: opacity/color transitions aid comprehension and stay;
+   position/scale movement is removed — handled via .reduced-motion class below */
+.reduced-motion [data-reveal]{
+  transform:none !important;
+  transition:opacity .28s ease;
+}
+.reduced-motion [data-reveal].is-visible{ opacity:1; }
+.reduced-motion [data-reveal]:not(.is-visible){ opacity:0; }
+
+/* ==========================================================================
+   6. HERO
+   ========================================================================== */
+.hero{
+  position:relative;
+  min-height:90vh;
+  display:flex;
+  align-items:center;
+  background:
+    radial-gradient(140% 100% at 50% -10%, var(--purple-700), var(--purple-950) 65%);
+  color:var(--text-on-dark);
+  padding-top:6rem;
+  overflow:hidden;
+}
+.hero-inner{
+  position:relative; z-index:2;
+  display:grid;
+  gap:2rem;
+  padding-block:2rem 2.5rem;
+  text-align:left;
+}
+.hero-kicker{
+  font-size:.85rem; letter-spacing:.3em; text-transform:uppercase;
+  color:var(--cyan-300); font-weight:600; margin-bottom:1.5rem;
+}
+.hero h1{ max-width:14ch; text-shadow:0 2px 40px rgba(65,183,196,.25); }
+.hero h1 em{ font-style:normal; }
+.hero .lede{ margin-top:1.5rem; color:var(--muted-on-dark); }
+.hero-ctas{ display:flex; flex-wrap:wrap; gap:1rem; margin-top:2.25rem; }
+
+.hero-visual{
+  position:absolute; inset:0;
+  z-index:0;
+}
+/* lives in normal flow as the last item of hero-inner (not absolutely pinned to
+   the hero's bottom edge) so it can never overlap the CTAs on short viewports */
+.hero-scroll-cue{
+  display:flex; flex-direction:column; align-items:center; gap:.5rem;
+  margin-top:-.75rem;
+  font-size:.72rem; letter-spacing:.18em; text-transform:uppercase;
+  color:var(--muted-on-dark);
+}
+.hero-scroll-cue .line{
+  width:1px; height:28px;
+  background:linear-gradient(var(--cyan-400), transparent);
+  animation:pulse-line 2.2s ease-in-out infinite;
+}
+@keyframes pulse-line{ 0%,100%{ opacity:.3; } 50%{ opacity:1; } }
+
+/* ==========================================================================
+   7. STORY CHAPTERS (services)
+   ========================================================================== */
+.chapter{
+  position:relative;
+  min-height:70vh;
+  display:flex;
+  align-items:center;
+}
+/* soft seam between scenes — reinforces continuity instead of a hard color cut */
+.section::before, .chapter::before{
+  content:'';
+  position:absolute; top:0; left:0; right:0; height:min(160px, 22vh);
+  background:linear-gradient(to bottom, rgba(0,0,0,.16), transparent);
+  pointer-events:none; z-index:1;
+}
+.section-bg-tint::before{ background:linear-gradient(to bottom, rgba(23,15,43,.05), transparent); }
+.chapter-grid{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:3rem;
+  align-items:center;
+  width:100%;
+}
+@media (min-width: 900px){
+  .chapter-grid{ grid-template-columns:1.05fr .95fr; gap:4rem; }
+  .chapter-grid.reverse{ direction:rtl; }
+  .chapter-grid.reverse > *{ direction:ltr; }
+}
+.chapter-copy{ max-width:46ch; }
+.chapter-copy p{ margin-top:1.1rem; }
+/* no card, no border, no background box — the chart and the living-field
+   canvas sit directly in the scene so they read as suspended in space
+   rather than boxed into a dashboard widget */
+.chapter-figure{
+  position:relative;
+  aspect-ratio:4/3.2;
+  overflow:visible;
+}
+
+/* small icon badge placed above each chapter's eyebrow — reuses the same
+   Phosphor icon as its matching card in the Panorama overview, so the visual
+   language reads as one system rather than two */
+.chapter-icon{ margin-bottom:1.1rem; }
+
+/* ---- 3D pointer-tilt (JS sets --rx/--ry on pointermove; CSS just renders it) ----
+   The combined transform formula lives entirely in custom properties (--ty/--ts
+   for the scroll-reveal entrance, --rx/--ry for pointer tilt) so GSAP tweening
+   the reveal never clobbers the tilt, and pointer tilt never clobbers the reveal. */
+.tilt-3d{
+  --rx:0deg; --ry:0deg;
+  transform:perspective(900px) rotateX(var(--rx)) rotateY(var(--ry));
+  transition:transform .5s var(--ease-out), box-shadow .5s var(--ease-out);
+  transform-style:preserve-3d;
+  will-change:transform;
+}
+.tilt-3d[data-reveal]{
+  --ty:28px; --ts:.98; --ry:-7deg;
+  transform:translateY(var(--ty)) scale(var(--ts)) perspective(900px) rotateX(var(--rx)) rotateY(var(--ry));
+}
+.tilt-3d.is-tilting{ transition:transform .12s linear; }
+@media (hover:hover) and (pointer:fine){
+  /* no card to lift anymore — a soft ambient glow instead, as if the
+     floating chart itself were catching light as the cursor passes */
+  .chapter-figure.tilt-3d:hover{ filter:drop-shadow(0 0 34px rgba(65,183,196,.2)); }
+}
+/* echoed from the chapter's icon badge on hover (see initTilt in the script) */
+.chapter-figure{ transition:filter .35s var(--ease-out); }
+.chapter-figure.is-echoing{ filter:drop-shadow(0 0 40px rgba(65,183,196,.32)); }
+@media (prefers-reduced-motion: reduce), (hover:none), (pointer:coarse){
+  .tilt-3d{ --rx:0deg !important; --ry:0deg !important; transition:none; }
+}
+.chapter-figure .scene{ position:absolute; inset:0; }
+.chapter-figure .figure-motif{
+  position:absolute; inset:0;
+  display:flex; align-items:center; justify-content:center;
+  z-index:1;
+}
+
+/* ==========================================================================
+   8. SOLUTIONS RECAP GRID
+   ========================================================================== */
+/* explicit breakpoints, not auto-fit — auto-fit can leave a half-empty last row
+   stretched unevenly; fixed column counts keep every card the same proportion
+   at every size: 1 col mobile, 2 tablet, 3 desktop (2 clean rows of 3 for the
+   6 solutions, never an odd stray card). */
+.recap-grid{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:1.25rem;
+  margin-top:3rem;
+}
+@media (min-width:640px){
+  .recap-grid{ grid-template-columns:repeat(2, 1fr); }
+}
+@media (min-width:960px){
+  .recap-grid{ grid-template-columns:repeat(3, 1fr); gap:1.5rem; }
+}
+/* cards are separated by soft background contrast + elevation, not outlines */
+.recap-card{
+  position:relative;
+  display:block;
+  background:rgba(255,255,255,.035);
+  border-radius:var(--radius);
+  padding:1.6rem 1.5rem;
+  box-shadow:var(--edge-glow), var(--shadow-card);
+  transition:transform .26s var(--ease-out), box-shadow .26s ease, background .26s ease;
+}
+.recap-card:focus-visible{
+  transform:translateY(-4px);
+  background:rgba(65,183,196,.08);
+  box-shadow:var(--edge-glow-hover), 0 20px 44px -18px rgba(65,183,196,.4);
+}
+.recap-card:active{ transform:scale(.98); }
+@media (hover:hover) and (pointer:fine){
+  .recap-card:hover{
+    transform:translateY(-4px);
+    background:rgba(65,183,196,.08);
+    box-shadow:var(--edge-glow-hover), 0 20px 44px -18px rgba(65,183,196,.4);
+  }
+}
+.recap-card h3{ font-size:1.05rem; margin-bottom:.5rem; }
+.recap-card p{ font-size:.92rem; color:var(--muted-on-dark); margin:0; }
+/* each solution's own small "gráfico relacionado" — no box, no axis, just the
+   line/segment itself catching a bit more light on hover, echoing the icon */
+.recap-spark{
+  display:block; width:100%; height:2.75rem; margin-top:1.25rem;
+  overflow:visible; opacity:.75;
+  transition:opacity .25s var(--ease-out), filter .25s var(--ease-out);
+}
+@media (hover:hover) and (pointer:fine){
+  .recap-card:hover .recap-spark{ opacity:1; filter:drop-shadow(0 0 8px rgba(65,183,196,.45)); }
+}
+
+/* ==========================================================================
+   9. VISION
+   ========================================================================== */
+/* strategic positioning lines — short, staged, cascading indent reinforces
+   the same dados → inteligência → decisão arc as the manifesto, at a fraction
+   of the length. Real institutional copy (blockquote + lede below) is
+   untouched — these are additive, not a replacement. */
+/* one shared left edge for every line in this section — the cascading indent
+   used previously made the block read as off-grid next to every other section
+   on the site, where content sits flush against the container's left edge.
+   Hierarchy now comes from size/weight/color only, same system as elsewhere:
+   the first line acts as this section's visual h2 (matching the h2 scale used
+   everywhere else — Visão is the one section whose <h2> is sr-only), the
+   following lines step down to lede scale. */
+/* Round 7: the statement previously topped out at 44rem (704px) inside a
+   ~1052px content column, leaving a large empty gap on the right on any
+   screen wider than a tablet — it read as a small block of text stranded in
+   a mostly-empty section rather than a confident editorial statement. Fix is
+   compositional, not just a bigger font-size: the primary line's own
+   max-width now tracks in ch units close to (not beyond) the container's
+   real content width, so it wraps into 1–2 balanced lines that actually use
+   the available column instead of an arbitrarily narrow one; its clamp()
+   ceiling was raised toward — but deliberately kept under — the Hero h1's
+   4.5rem so Visão gains real presence without out-scaling the page's one
+   established "biggest text" moment. text-wrap:balance keeps the resulting
+   line break elegant instead of a stray short widow. */
+.vision-statements{
+  display:grid; gap:var(--space-lg);
+  max-width:100%; margin-bottom:var(--space-xl);
+}
+.vision-line{
+  font-family:var(--font-display); font-weight:300;
+  color:var(--ink); margin:0;
+}
+/* Round 8: 24ch (~845px at the clamp ceiling) still fell ~300px short of the
+   ~1052px content column — the line wrapped into a narrow block with visible
+   empty space beside it instead of genuinely occupying the container. Raising
+   the cap to 40ch removes that artificial ceiling, but text-wrap:balance on
+   its own doesn't fill available width — balance actively picks the NARROWEST
+   measure that still produces the same line count, which is what left the
+   first version looking short even after the cap was raised. Swapping to
+   text-wrap:pretty keeps sensible break points (no orphaned last word) while
+   letting each line actually extend to the edge of the available column, so
+   the statement reads as one wide, deliberate block instead of a centered
+   narrow column. */
+.vision-line:first-child{
+  font-size:clamp(2.35rem, 5.6vw, 4.4rem); line-height:1.12; letter-spacing:-0.02em;
+  max-width:40ch;
+  text-wrap:pretty;
+}
+.vision-line .accent{ color:var(--cyan-500); font-weight:500; }
+.vision-line:nth-child(2), .vision-line:nth-child(3){
+  font-size:clamp(1.3rem, 2.1vw, 1.65rem); font-weight:400; line-height:1.45; letter-spacing:-0.005em;
+  color:var(--muted-on-light); max-width:46ch;
+}
+
+.vision-quote{
+  font-family:var(--font-display);
+  font-size:clamp(1.35rem, 2.5vw, 1.95rem);
+  font-weight:300;
+  line-height:1.4;
+  max-width:42ch;
+  /* on-light section — was incorrectly using the on-dark text color, which
+     put low-contrast light lavender text on a light background */
+  color:var(--ink);
+  opacity:.82;
+  /* <blockquote> carries a default browser margin (1em 40px) that isn't
+     reset anywhere else on the page — left it flush left with every other
+     line in this section (eyebrow, title, lede, closing paragraph) instead
+     of silently indenting 40px on every browser/device, which read as
+     misaligned. Bottom spacing set explicitly instead of relying on
+     default-margin collapse, matching the rhythm used by the sibling
+     lede paragraph below. */
+  margin:0 0 var(--space-lg);
+}
+.vision-quote .accent{ color:var(--cyan-500); font-weight:500; }
+
+/* ==========================================================================
+   10. PARTNERS
+   ========================================================================== */
+/* each partner's source file arrives at its own resolution, crop and aspect
+   ratio (out of our control — we never touch the mark itself). Rather than
+   showing raw <img> tags at wildly different visual weights, every logo sits
+   inside an identical bounded "logo card": same height, same optical
+   padding, same neutral glass backdrop. object-fit:contain scales each mark
+   down to fit without stretching or cropping, so two logos with different
+   native proportions still read as the same size on the page — a standard,
+   honest way to make a mixed set of partner marks feel like one consistent
+   row without altering any single one of them. */
+/* justify-content:center — with a small, real partner roster (not a filler
+   grid meant to span edge-to-edge), a left-aligned flex row leaves a large
+   dead zone on wide viewports. Centering reads as a deliberately curated,
+   finished set rather than a row that ran out of logos. Cards are also
+   given a fixed width/height (not just min-width) so every mark — regardless
+   of its native aspect ratio — sits inside an identically sized frame,
+   which is what actually reads as "standardized" next to a neighboring card. */
+.partners-row{
+  display:flex; flex-wrap:wrap; align-items:stretch; justify-content:center;
+  gap:1.75rem;
+  margin-top:3rem;
+}
+.partner-card{
+  display:flex; align-items:center; justify-content:center;
+  height:104px; width:240px; padding:1.25rem 2.25rem;
+  background:rgba(255,255,255,.045);
+  border:1px solid rgba(255,255,255,.06);
+  border-radius:var(--radius);
+  box-shadow:var(--edge-glow);
+  transition:background .3s ease, box-shadow .3s ease, border-color .3s ease, transform .3s var(--ease-out);
+}
+@media (hover:hover) and (pointer:fine){
+  .partner-card:hover{
+    background:rgba(255,255,255,.075);
+    border-color:rgba(255,255,255,.12);
+    box-shadow:var(--edge-glow-hover);
+    transform:translateY(-2px);
+  }
+}
+.partner-logo{
+  max-height:40px; max-width:100%;
+  width:auto; height:auto;
+  object-fit:contain;
+  filter:grayscale(1) opacity(.72) brightness(1.6);
+  transition:filter .3s ease;
+}
+@media (hover:hover) and (pointer:fine){
+  .partner-card:hover .partner-logo{ filter:grayscale(0) opacity(1) brightness(1); }
+}
+@media (max-width: 560px){
+  .partner-card{ width:100%; max-width:280px; }
+}
+
+/* ==========================================================================
+   11. CONTACT
+   ========================================================================== */
+.contact-grid{
+  display:grid; gap:3.5rem;
+  grid-template-columns:1fr;
+}
+@media (min-width:900px){ .contact-grid{ grid-template-columns:.85fr 1.15fr; } }
+
+.contact-detail{ display:flex; gap:1rem; align-items:flex-start; }
+.contact-detail svg{ width:1.35rem; height:1.35rem; color:var(--cyan-400); flex-shrink:0; margin-top:.2rem; }
+.contact-detail a, .contact-detail address{ font-style:normal; color:var(--muted-on-dark); }
+.contact-detail a:hover{ color:var(--cyan-300); }
+
+.field{
+  position:relative;
+  margin-bottom:1.15rem;
+}
+/* visible label above the field — not placeholder-dependent for meaning */
+.field-label{
+  display:block;
+  font-size:.78rem; font-weight:600; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--muted-on-dark);
+  margin-bottom:.55rem;
+}
+.field input, .field textarea{
+  width:100%;
+  background:rgba(255,255,255,.05);
+  border:0;
+  box-shadow:var(--edge-glow);
+  border-radius:var(--radius-sm);
+  padding:1rem 1.05rem;
+  color:var(--text-on-dark);
+  font-family:inherit;
+  font-size:.98rem;
+  transition:box-shadow .3s, background .3s;
+}
+.field input::placeholder, .field textarea::placeholder{ color:var(--muted-on-dark); opacity:.7; }
+.field input:focus, .field textarea:focus{
+  outline:none;
+  box-shadow:0 0 0 1px rgba(65,183,196,.55), 0 0 0 4px rgba(65,183,196,.14);
+  background:rgba(255,255,255,.08);
+}
+.field.has-error input, .field.has-error textarea{
+  box-shadow:0 0 0 1px rgba(240,163,163,.6);
+}
+.field textarea{ min-height:140px; resize:vertical; }
+.form-row{ display:grid; gap:1.15rem; }
+@media (min-width:560px){ .form-row.two{ grid-template-columns:1fr 1fr; } }
+.form-status{
+  display:flex; align-items:center; gap:.5rem;
+  font-size:.88rem; color:var(--cyan-300); margin-top:.9rem; min-height:1.2em;
+  transition:color .25s ease;
+}
+.form-status.is-error{ color:#f0a3a3; }
+.form-status.is-success{ color:var(--cyan-300); font-weight:500; }
+.form-status.is-loading::before{
+  content:'';
+  width:.85em; height:.85em; border-radius:50%;
+  border:2px solid rgba(126,212,221,.3); border-top-color:var(--cyan-300);
+  animation:status-spin .7s linear infinite;
+  flex-shrink:0;
+}
+@keyframes status-spin{ to{ transform:rotate(360deg); } }
+@media (prefers-reduced-motion: reduce){ .form-status.is-loading::before{ animation-duration:1.4s; } }
+
+/* ---- contact wizard: 3 short steps instead of one long, dense form ---- */
+.wizard-progress{ display:flex; gap:.5rem; margin-bottom:2.25rem; }
+.wizard-dot{
+  height:4px; flex:1; border-radius:2px;
+  background:rgba(255,255,255,.14);
+  transition:background .35s var(--ease-out);
+}
+.wizard-dot.is-active, .wizard-dot.is-done{ background:var(--cyan-400); }
+
+fieldset.wizard-step{ border:0; margin:0; padding:0; min-width:0; }
+.wizard-step{
+  opacity:0; transform:translateY(10px);
+  transition:opacity .32s var(--ease-out), transform .32s var(--ease-out);
+}
+.wizard-step.is-active{ opacity:1; transform:translateY(0); }
+@media (prefers-reduced-motion: reduce){
+  .wizard-step{ transform:none; transition:opacity .2s ease; }
+}
+.wizard-question{
+  font-family:var(--font-display); font-weight:400;
+  font-size:clamp(1.2rem, 2.2vw, 1.55rem);
+  color:var(--text-on-dark);
+  margin:0 0 1.35rem; padding:0;
+}
+
+.service-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(160px, 1fr));
+  gap:.75rem;
+}
+.service-chip{ position:relative; display:block; cursor:pointer; }
+.service-chip input{
+  position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+  overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;
+}
+.service-chip .chip-label{
+  display:flex; align-items:center; justify-content:center; text-align:center;
+  min-height:3.4rem; padding:.9rem 1.1rem;
+  border-radius:var(--radius);
+  box-shadow:var(--edge-glow);
+  background:rgba(255,255,255,.04);
+  color:var(--text-on-dark);
+  font-size:.9rem; font-weight:500; line-height:1.25;
+  transition:box-shadow .25s var(--ease-out), background .25s var(--ease-out), transform .2s var(--ease-out);
+}
+.service-chip input:checked + .chip-label{
+  box-shadow:0 0 0 1px rgba(65,183,196,.6);
+  background:rgba(65,183,196,.16);
+  color:var(--cyan-300);
+}
+.service-chip input:focus-visible + .chip-label{
+  box-shadow:0 0 0 2px var(--ring-offset), 0 0 0 4px var(--ring);
+}
+@media (hover:hover) and (pointer:fine){
+  .service-chip:hover .chip-label{ box-shadow:var(--edge-glow-hover); transform:translateY(-2px); }
+}
+
+.wizard-nav{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:1rem; margin-top:1.85rem;
+}
+
+.contact-cta-row{ display:flex; gap:1rem; flex-wrap:wrap; margin-top:2rem; }
+
+/* ==========================================================================
+   12. FOOTER
+   ========================================================================== */
+.site-footer{
+  background:var(--purple-950);
+  color:var(--muted-on-dark);
+  padding-block:2.5rem;
+  text-align:center;
+  position:relative; z-index:2;
+}
+.back-to-top{
+  display:inline-flex; align-items:center; gap:.5rem;
+  font-size:.85rem; letter-spacing:.12em; text-transform:uppercase;
+  color:var(--text-on-dark); margin-bottom:1.75rem;
+}
+.back-to-top svg{ width:1rem; height:1rem; transition:transform .3s; }
+.back-to-top:hover svg{ transform:translateY(-3px); }
+.social-row{ display:flex; justify-content:center; gap:.9rem; margin-top:1.5rem; }
+.social-row a{
+  width:38px; height:38px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(255,255,255,.055);
+  transition:background .3s, box-shadow .3s;
+}
+.social-row a:hover{ background:rgba(65,183,196,.16); box-shadow:0 0 0 1px rgba(65,183,196,.35); }
+.social-row svg{ width:16px; height:16px; }
+
+/* ==========================================================================
+   13. REDUCED MOTION
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce){
+  /* Kill autoplaying/decorative keyframe motion (particle drift, pulse cue, parallax loops).
+     Deliberately DO NOT zero out transitions globally: short opacity/color transitions
+     (button feedback, reveal fades) aid comprehension and stay — only movement goes. */
+  html{ scroll-behavior:auto !important; }
+  *,*::before,*::after{
+    animation-duration:.001ms !important;
+    animation-iteration-count:1 !important;
+  }
+}
+
+/* ==========================================================================
+   14. UTILITIES
+   ========================================================================== */
+.visually-balance{ text-wrap:balance; }
+::selection{ background:var(--cyan-400); color:var(--purple-950); }
+</style>
+</head>
+<body>
+
+<a class="skip-link" href="#main" data-i18n="a11y.skipLink">Pular para o conteúdo principal</a>
+
+<!-- connective data-thread across the whole scroll -->
+<svg id="thread-svg" width="2" height="100%" aria-hidden="true" focusable="false">
+  <line id="thread-line" x1="1" y1="0" x2="1" y2="100%" stroke="url(#threadGrad)" stroke-width="2"/>
+  <defs>
+    <linearGradient id="threadGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#41b7c4"/>
+      <stop offset="100%" stop-color="#7862ad"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<!-- shared gradient fill for every solution/chapter icon — one definition,
+     referenced everywhere via fill="url(#iconGrad)", so the icons read as
+     dimensional (cyan-to-violet) instead of flat single-color glyphs -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <linearGradient id="iconGrad" x1="10%" y1="0%" x2="90%" y2="100%">
+      <stop offset="0%" stop-color="#9fe4ea"/>
+      <stop offset="50%" stop-color="#41b7c4"/>
+      <stop offset="100%" stop-color="#8a72c0"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<!-- ===================== HEADER ===================== -->
+<header class="site-header" id="site-header">
+  <a class="brand" href="#inicio" aria-label="Algtrix, Início" data-i18n-aria-label="nav.ariaBrand">
+    <img src="https://static.wixstatic.com/media/9c4ce7_221fe3d98f394b629a72f24a223cbc1d~mv2.png" alt="Algtrix">
+  </a>
+  <button class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="main-nav">
+    <svg class="icon-open" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M224,128a8,8,0,0,1-8,8H40a8,8,0,0,1,0-16H216A8,8,0,0,1,224,128ZM40,72H216a8,8,0,0,0,0-16H40a8,8,0,0,0,0,16ZM216,184H40a8,8,0,0,0,0,16H216a8,8,0,0,0,0-16Z"/></svg>
+    <svg class="icon-close" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/></svg>
+    <span class="sr-only" data-i18n="nav.openMenu">Abrir menu</span>
+  </button>
+  <nav class="main-nav" id="main-nav" aria-label="Navegação principal" data-i18n-aria-label="nav.ariaMain">
+    <ul>
+      <li><a href="#inicio" data-i18n="nav.home">Início</a></li>
+      <li><a href="#solucoes" data-i18n="nav.solutions">Soluções</a></li>
+      <li><a href="#visao" data-i18n="nav.vision">Visão</a></li>
+      <li><a href="#parceiros" data-i18n="nav.partners">Parceiros</a></li>
+      <li><a href="#contato" data-i18n="nav.contact">Contato</a></li>
+    </ul>
+    <a class="btn btn-primary header-cta" href="#contato">
+      <span data-i18n="cta.talkToSpecialist">Falar com um especialista</span>
+      <svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg>
+    </a>
+    <div class="lang-switch" id="lang-switch" role="group" aria-label="Idioma / Language / Idioma">
+      <button type="button" class="lang-btn" data-lang="pt">PT</button>
+      <button type="button" class="lang-btn" data-lang="en">EN</button>
+      <button type="button" class="lang-btn" data-lang="es">ES</button>
+    </div>
+  </nav>
+</header>
+<div class="nav-scrim" id="nav-scrim"></div>
+
+<main id="main">
+
+  <!-- ===================== 1. HERO ===================== -->
+  <section class="hero" id="inicio">
+    <div class="hero-visual scene" aria-hidden="true">
+      <div class="grid-plane"></div>
+      <div class="hex-texture"></div>
+      <div class="glow-orb cyan" style="width:46vw;height:46vw;top:-14vw;right:-10vw;"></div>
+      <div class="glow-orb violet far" style="width:38vw;height:38vw;bottom:-16vw;left:-8vw;"></div>
+      <canvas class="living-field" data-order="0.06" data-density="1.05" aria-hidden="true"></canvas>
+      <div class="light-sweep" aria-hidden="true"></div>
+      <div class="ticker-col" style="top:8%;left:6%;" aria-hidden="true">01001<br>110<br>2.184<br>0110<br>47.02<br>001</div>
+      <div class="ticker-col" style="top:22%;right:8%;" aria-hidden="true">99.4<br>011<br>1.007<br>101<br>63.9</div>
+    </div>
+
+    <div class="container hero-inner">
+      <h1 data-reveal>
+        <span class="sr-only" data-i18n="hero.srWord">Consultoria</span>
+        <span class="magnetic-word" data-text="CONSULTORIA" data-i18n="hero.magneticWord" aria-hidden="true">CONSULTORIA</span><br>
+        <em class="text-gradient" data-i18n="hero.gradientWord">ATUARIAL</em>
+      </h1>
+      <p class="lede" data-reveal data-i18n="hero.lede">Transformamos dados em resultados: precisão atuarial e inteligência de dados para a sustentabilidade da saúde suplementar.</p>
+      <!-- "Falar com um especialista" is the one phrase that repeats between
+           Header and Hero, and that's intentional: both are strategic
+           conversion points (per spec), just with different composition —
+           the pill in the header vs. this full, gradient, glowing primary
+           button — so they read as the same action offered twice, not a
+           duplicated element. "Explorar nossas soluções" stays the clearly
+           secondary, quieter action beside it. -->
+      <div class="hero-ctas" data-reveal>
+        <a class="btn btn-primary btn-hero-primary" href="#contato">
+          <span data-i18n="cta.talkToSpecialist">Falar com um especialista</span>
+          <svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg>
+        </a>
+        <a class="btn btn-ghost" href="#solucoes">
+          <span data-i18n="hero.ctaSecondary">Explorar nossas soluções</span>
+          <svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg>
+        </a>
+      </div>
+      <div class="hero-scroll-cue" aria-hidden="true">
+        <span data-i18n="hero.scrollCue">Role para explorar</span>
+        <span class="line"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== MANIFESTO (scroll-scrubbed phrase sequence) =====================
+       Reverted per explicit request back to the five-phrase version: each phrase fades in,
+       holds, then dissolves into the next, character by character, as the visitor scrolls.
+       Degrades to a plain, fully-visible stacked paragraph (no pin, no scroll-jacking, normal
+       height) whenever SplitText isn't available or the visitor asked for reduced motion —
+       the .manifesto-ready class is only ever added by JS after a successful build. -->
+  <div class="container-titulos" id="manifesto">
+    <div class="container-sticky">
+      <!-- data field behind the phrases: JS drives its "order" parameter from
+           chaotic (0) to organized (1) in lockstep with scroll progress through
+           this same section, so the points visibly organize as the words move
+           from DADOS through RESULTADO — the visual echoes the copy instead of
+           just sitting behind it. -->
+      <canvas class="living-field manifesto-field" data-order="0.04" data-density="0.85" aria-hidden="true"></canvas>
+      <!-- two extra beats layered on top of the particle field, timed (via JS)
+           to fade in only during their own phrase: a target/indicator reading
+           for "Decisão", an ascending result graph for "Resultado" — so the
+           graphic visibly changes shape at each stage, not just density. -->
+      <svg class="manifesto-motif" viewBox="0 0 200 200" aria-hidden="true">
+        <g class="motif-target">
+          <circle cx="100" cy="100" r="46" fill="none" stroke="#41b7c4" stroke-width="1.4" opacity=".55"/>
+          <circle cx="100" cy="100" r="26" fill="none" stroke="#41b7c4" stroke-width="1.4" opacity=".75"/>
+          <circle cx="100" cy="100" r="5" fill="#7ed4dd"/>
+          <line x1="100" y1="18" x2="100" y2="42" stroke="#41b7c4" stroke-width="1.4"/>
+          <line x1="100" y1="158" x2="100" y2="182" stroke="#41b7c4" stroke-width="1.4"/>
+          <line x1="18" y1="100" x2="42" y2="100" stroke="#41b7c4" stroke-width="1.4"/>
+          <line x1="158" y1="100" x2="182" y2="100" stroke="#41b7c4" stroke-width="1.4"/>
+        </g>
+        <g class="motif-result">
+          <polyline points="16,150 56,118 96,130 136,66 184,34" fill="none" stroke="#7ed4dd" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="184" cy="34" r="5" fill="#41b7c4"/>
+        </g>
+      </svg>
+      <div class="manifesto-inner">
+        <div class="manifesto-kicker" data-i18n="manifesto.kicker">O caminho dos dados</div>
+        <div class="manifesto-line">
+          <span class="sr-only" data-i18n="manifesto.p1">Dados brutos.</span>
+          <h2 class="manifesto-text" data-i18n="manifesto.p1" aria-hidden="true">Dados brutos.</h2>
+        </div>
+        <div class="manifesto-line">
+          <span class="sr-only" data-i18n="manifesto.p2">Organizados com rigor técnico.</span>
+          <h2 class="manifesto-text" data-i18n="manifesto.p2" aria-hidden="true">Organizados com rigor técnico.</h2>
+        </div>
+        <div class="manifesto-line">
+          <span class="sr-only" data-i18n="manifesto.p3">Transformados em inteligência atuarial.</span>
+          <h2 class="manifesto-text" data-i18n="manifesto.p3" aria-hidden="true">Transformados em inteligência atuarial.</h2>
+        </div>
+        <div class="manifesto-line">
+          <span class="sr-only" data-i18n="manifesto.p4">Prontos para orientar cada decisão.</span>
+          <h2 class="manifesto-text" data-i18n="manifesto.p4" aria-hidden="true">Prontos para orientar cada decisão.</h2>
+        </div>
+        <div class="manifesto-line">
+          <span class="sr-only" data-i18n="manifesto.p5">Resultados que sustentam o negócio.</span>
+          <h2 class="manifesto-text" data-i18n="manifesto.p5" aria-hidden="true">Resultados que sustentam o negócio.</h2>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== 2. PANORAMA / SOLUTIONS OVERVIEW =====================
+       Positioned as the second screen (right after the hero) rather than as a late
+       recap: this is the map of what Algtrix actually does today, so visitors get
+       their bearings immediately and can jump straight to what interests them. The
+       six chapters that follow are the deep-dive read for anyone who keeps scrolling. -->
+  <section class="section section-bg-dark on-dark" id="solucoes" aria-labelledby="solucoes-title">
+    <div class="scene" aria-hidden="true">
+      <div class="grid-plane" style="opacity:.35;"></div>
+      <div class="hex-texture"></div>
+      <div class="glow-orb cyan" style="width:34vw;height:34vw;top:-12vw;right:-8vw;opacity:.5;"></div>
+      <div class="glow-orb violet far" style="width:26vw;height:26vw;bottom:-10vw;left:-6vw;opacity:.4;"></div>
+      <!-- no .data-veil texture here (unlike Parceiros/Contato below): this section's
+           cards each already carry their own real chart, so a second decorative curve
+           crossing behind the grid read as a stray extra/wrong graph competing with
+           the real ones — removed per explicit feedback. -->
+    </div>
+    <div class="container">
+      <div class="eyebrow" data-reveal><span class="num">01</span> <span data-i18n="solutions.eyebrow">Panorama</span></div>
+      <h2 id="solucoes-title" class="visually-balance" data-reveal data-magnetic data-i18n="solutions.title">Soluções otimizadas para áreas de atuação</h2>
+      <div class="recap-grid">
+        <a class="recap-card tilt-3d" data-reveal href="#saude-suplementar">
+          <div class="icon-badge"><svg class="rc-icon" viewBox="0 0 256 256" fill="url(#iconGrad)" aria-hidden="true"><path d="M72,144H32a8,8,0,0,1,0-16H67.72l13.62-20.44a8,8,0,0,1,13.32,0l25.34,38,9.34-14A8,8,0,0,1,136,128h24a8,8,0,0,1,0,16H140.28l-13.62,20.44a8,8,0,0,1-13.32,0L88,126.42l-9.34,14A8,8,0,0,1,72,144ZM178,40c-20.65,0-38.73,8.88-50,23.89C116.73,48.88,98.65,40,78,40a62.07,62.07,0,0,0-62,62c0,.75,0,1.5,0,2.25a8,8,0,1,0,16-.5c0-.58,0-1.17,0-1.75A46.06,46.06,0,0,1,78,56c19.45,0,35.78,10.36,42.6,27a8,8,0,0,0,14.8,0c6.82-16.67,23.15-27,42.6-27a46.06,46.06,0,0,1,46,46c0,53.61-77.76,102.15-96,112.8-10.83-6.31-42.63-26-66.68-52.21a8,8,0,1,0-11.8,10.82c31.17,34,72.93,56.68,74.69,57.63a8,8,0,0,0,7.58,0C136.21,228.66,240,172,240,102A62.07,62.07,0,0,0,178,40Z"/></svg></div>
+          <h3 data-magnetic data-i18n="solutions.cards.saude.title">Saúde Suplementar</h3>
+          <p data-i18n="solutions.cards.saude.desc">Maximizar eficiência e qualidade na saúde suplementar.</p>
+          <svg class="recap-spark chart-svg" viewBox="0 0 160 44" aria-hidden="true">
+            <line class="axis-line" x1="0" y1="38" x2="160" y2="38"/>
+            <path d="M4 32 L58 24 L104 28 L152 8" fill="none" stroke="url(#iconGrad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="4" cy="32" r="3" fill="#7ed4dd" data-tooltip="Sinistralidade" data-term="Sinistralidade"/>
+            <circle cx="58" cy="24" r="3" fill="#7ed4dd" data-tooltip="Rede credenciada" data-term="Rede credenciada"/>
+            <circle cx="152" cy="8" r="3.5" fill="#41b7c4" data-tooltip="Regulação ANS" data-term="Regulação ANS"/>
+          </svg>
+        </a>
+        <a class="recap-card tilt-3d" data-reveal href="#calculo-riscos">
+          <div class="icon-badge"><svg class="rc-icon" viewBox="0 0 256 256" fill="url(#iconGrad)" aria-hidden="true"><path d="M120,136V96a8,8,0,0,1,16,0v40a8,8,0,0,1-16,0Zm8,48a12,12,0,1,0-12-12A12,12,0,0,0,128,184ZM224,56v56c0,52.72-25.52,84.67-46.93,102.19-23.06,18.86-46,25.27-47,25.53a8,8,0,0,1-4.2,0c-1-.26-23.91-6.67-47-25.53C57.52,196.67,32,164.72,32,112V56A16,16,0,0,1,48,40H208A16,16,0,0,1,224,56Zm-16,0L48,56l0,56c0,37.3,13.82,67.51,41.07,89.81A128.25,128.25,0,0,0,128,223.62a129.3,129.3,0,0,0,39.41-22.2C194.34,179.16,208,149.07,208,112Z"/></svg></div>
+          <h3 data-magnetic data-i18n="solutions.cards.riscos.title">Cálculo de Riscos</h3>
+          <p data-i18n="solutions.cards.riscos.desc">Avaliação meticulosa e calculada de riscos.</p>
+          <svg class="recap-spark chart-svg" viewBox="0 0 160 44" aria-hidden="true">
+            <line class="axis-line" x1="0" y1="38" x2="160" y2="38"/>
+            <path d="M4 14 L36 30 L68 12 L104 26 L160 24" fill="none" stroke="url(#iconGrad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="4" cy="14" r="3" fill="#7ed4dd" data-tooltip="Value at Risk" data-term="Value at Risk"/>
+            <circle cx="68" cy="12" r="3" fill="#7ed4dd" data-tooltip="Reservas técnicas" data-term="Reservas técnicas"/>
+            <circle cx="160" cy="24" r="3.5" fill="#41b7c4" data-tooltip="Estresse atuarial" data-term="Estresse atuarial"/>
+          </svg>
+        </a>
+        <a class="recap-card tilt-3d" data-reveal href="#consultoria-atuarial">
+          <div class="icon-badge"><svg class="rc-icon" viewBox="0 0 256 256" fill="url(#iconGrad)" aria-hidden="true"><path d="M232,208a8,8,0,0,1-8,8H32a8,8,0,0,1-8-8V48a8,8,0,0,1,16,0V156.69l50.34-50.35a8,8,0,0,1,11.32,0L128,132.69,180.69,80H160a8,8,0,0,1,0-16h40a8,8,0,0,1,8,8v40a8,8,0,0,1-16,0V91.31l-58.34,58.35a8,8,0,0,1-11.32,0L96,123.31l-56,56V200H224A8,8,0,0,1,232,208Z"/></svg></div>
+          <h3 data-magnetic data-i18n="solutions.cards.consultoria.title">Consultoria Atuarial</h3>
+          <p data-i18n="solutions.cards.consultoria.desc">Análise precisa e estratégica para seguros de saúde.</p>
+          <svg class="recap-spark chart-svg" viewBox="0 0 160 44" aria-hidden="true">
+            <line class="axis-line" x1="0" y1="38" x2="160" y2="38"/>
+            <path d="M4 34 L34 34 L34 24 L64 24 L64 16 L94 16 L94 6 L156 6" fill="none" stroke="url(#iconGrad)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+            <circle cx="34" cy="24" r="3" fill="#7ed4dd" data-tooltip="Precificação" data-term="Precificação"/>
+            <circle cx="64" cy="16" r="3" fill="#7ed4dd" data-tooltip="Provisões técnicas" data-term="Provisões técnicas"/>
+            <circle cx="94" cy="6" r="3.5" fill="#41b7c4" data-tooltip="Solvência" data-term="Solvência"/>
+          </svg>
+        </a>
+        <a class="recap-card tilt-3d" data-reveal href="#avaliacao-carteira">
+          <div class="icon-badge"><svg class="rc-icon" viewBox="0 0 256 256" fill="url(#iconGrad)" aria-hidden="true"><path d="M230.91,172A8,8,0,0,1,228,182.91l-96,56a8,8,0,0,1-8.06,0l-96-56A8,8,0,0,1,36,169.09l92,53.65,92-53.65A8,8,0,0,1,230.91,172ZM220,121.09l-92,53.65L36,121.09A8,8,0,0,0,28,134.91l96,56a8,8,0,0,0,8.06,0l96-56A8,8,0,1,0,220,121.09ZM24,80a8,8,0,0,1,4-6.91l96-56a8,8,0,0,1,8.06,0l96,56a8,8,0,0,1,0,13.82l-96,56a8,8,0,0,1-8.06,0l-96-56A8,8,0,0,1,24,80Zm23.88,0L128,126.74,208.12,80,128,33.26Z"/></svg></div>
+          <h3 data-magnetic data-i18n="solutions.cards.carteira.title">Avaliação de Carteira</h3>
+          <p data-i18n="solutions.cards.carteira.desc">Exploração detalhada de dados para insights estratégicos.</p>
+          <svg class="recap-spark chart-svg" viewBox="0 0 160 44" aria-hidden="true">
+            <line class="axis-line" x1="0" y1="40" x2="160" y2="40"/>
+            <g fill="url(#iconGrad)">
+              <rect x="6" y="20" width="16" height="20" opacity=".55" data-tooltip="Segmentação de carteira" data-term="Segmentação de carteira"/>
+              <rect x="32" y="10" width="16" height="30" opacity=".7" data-tooltip="Sinistro incorrido" data-term="Sinistro incorrido"/>
+              <rect x="58" y="24" width="16" height="16" opacity=".55" data-tooltip="Renovação de contrato" data-term="Renovação de contrato"/>
+              <rect x="84" y="4" width="16" height="36" data-tooltip="Segmentação de carteira" data-term="Segmentação de carteira"/>
+              <rect x="110" y="14" width="16" height="26" opacity=".7" data-tooltip="Sinistro incorrido" data-term="Sinistro incorrido"/>
+            </g>
+          </svg>
+        </a>
+        <a class="recap-card tilt-3d" data-reveal href="#modelagem-estatistica">
+          <div class="icon-badge"><svg class="rc-icon" viewBox="0 0 256 256" fill="url(#iconGrad)" aria-hidden="true"><path d="M232,208a8,8,0,0,1-8,8H32a8,8,0,0,1-8-8V48a8,8,0,0,1,16,0V200H224A8,8,0,0,1,232,208ZM132,160a12,12,0,1,0-12-12A12,12,0,0,0,132,160Zm-24-56A12,12,0,1,0,96,92,12,12,0,0,0,108,104ZM76,176a12,12,0,1,0-12-12A12,12,0,0,0,76,176Zm96-48a12,12,0,1,0-12-12A12,12,0,0,0,172,128Zm24-40a12,12,0,1,0-12-12A12,12,0,0,0,196,88Zm-20,76a12,12,0,1,0,12-12A12,12,0,0,0,176,164Z"/></svg></div>
+          <h3 data-magnetic data-i18n="solutions.cards.modelagem.title">Modelagem Estatística</h3>
+          <p data-i18n="solutions.cards.modelagem.desc">Modelagem estatística para insights precisos.</p>
+          <svg class="recap-spark chart-svg" viewBox="0 0 160 44" aria-hidden="true">
+            <line class="axis-line" x1="0" y1="40" x2="160" y2="40"/>
+            <path d="M4 38 C 40 38, 50 6, 80 6 C 110 6, 120 38, 156 38" fill="none" stroke="url(#iconGrad)" stroke-width="2"/>
+            <circle cx="20" cy="36" r="3" fill="#7ed4dd" data-tooltip="Regressão" data-term="Regressão"/>
+            <circle cx="80" cy="6" r="3.5" fill="#41b7c4" data-tooltip="Séries temporais" data-term="Séries temporais"/>
+            <circle cx="140" cy="36" r="3" fill="#7ed4dd" data-tooltip="Distribuições de perda" data-term="Distribuições de perda"/>
+          </svg>
+        </a>
+        <a class="recap-card tilt-3d" data-reveal href="#analise-dados">
+          <div class="icon-badge"><svg class="rc-icon" viewBox="0 0 256 256" fill="url(#iconGrad)" aria-hidden="true"><path d="M128,24C74.17,24,32,48.6,32,80v96c0,31.4,42.17,56,96,56s96-24.6,96-56V80C224,48.6,181.83,24,128,24Zm80,104c0,9.62-7.88,19.43-21.61,26.92C170.93,163.35,150.19,168,128,168s-42.93-4.65-58.39-13.08C55.88,147.43,48,137.62,48,128V111.36c17.06,15,46.23,24.64,80,24.64s62.94-9.68,80-24.64ZM69.61,53.08C85.07,44.65,105.81,40,128,40s42.93,4.65,58.39,13.08C200.12,60.57,208,70.38,208,80s-7.88,19.43-21.61,26.92C170.93,115.35,150.19,120,128,120s-42.93-4.65-58.39-13.08C55.88,99.43,48,89.62,48,80S55.88,60.57,69.61,53.08ZM186.39,202.92C170.93,211.35,150.19,216,128,216s-42.93-4.65-58.39-13.08C55.88,195.43,48,185.62,48,176V159.36c17.06,15,46.23,24.64,80,24.64s62.94-9.68,80-24.64V176C208,185.62,200.12,195.43,186.39,202.92Z"/></svg></div>
+          <h3 data-magnetic data-i18n="solutions.cards.analise.title">Análise de Dados</h3>
+          <p data-i18n="solutions.cards.analise.desc">Interpretação de dados para estratégias assertivas.</p>
+          <svg class="recap-spark chart-svg" viewBox="0 0 160 44" aria-hidden="true">
+            <line class="axis-line" x1="0" y1="40" x2="160" y2="40"/>
+            <path d="M4 30 L156 14" stroke="rgba(255,255,255,.18)" stroke-width="1.4" stroke-dasharray="3 4"/>
+            <circle cx="16" cy="26" r="3" fill="#7ed4dd" data-tooltip="Data quality" data-term="Data quality"/>
+            <circle cx="70" cy="20" r="3" fill="#41b7c4" data-tooltip="Dashboards" data-term="Dashboards"/>
+            <circle cx="110" cy="12" r="3" fill="#7ed4dd" data-tooltip="Indicadores-chave" data-term="Indicadores-chave"/>
+            <circle cx="146" cy="8" r="3.5" fill="#41b7c4" data-tooltip="Data quality" data-term="Data quality"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 3–8. STORY CHAPTERS ===================== -->
+  <!-- Cada capítulo usa 100% do texto real do site (título + descrição de uma linha) -->
+
+  <section class="chapter section-bg-deep on-dark" id="saude-suplementar" data-chapter="1">
+    <div class="scene" aria-hidden="true">
+      <div class="glow-orb cyan far" style="width:30vw;height:30vw;top:-6vw;left:60%;opacity:.35;"></div>
+    </div>
+    <div class="container chapter-grid">
+      <div class="chapter-copy" data-reveal>
+        <div class="icon-badge chapter-icon tilt-3d" aria-hidden="true"><svg class="rc-icon" viewBox="0 0 256 256" fill="url(#iconGrad)"><path d="M72,144H32a8,8,0,0,1,0-16H67.72l13.62-20.44a8,8,0,0,1,13.32,0l25.34,38,9.34-14A8,8,0,0,1,136,128h24a8,8,0,0,1,0,16H140.28l-13.62,20.44a8,8,0,0,1-13.32,0L88,126.42l-9.34,14A8,8,0,0,1,72,144ZM178,40c-20.65,0-38.73,8.88-50,23.89C116.73,48.88,98.65,40,78,40a62.07,62.07,0,0,0-62,62c0,.75,0,1.5,0,2.25a8,8,0,1,0,16-.5c0-.58,0-1.17,0-1.75A46.06,46.06,0,0,1,78,56c19.45,0,35.78,10.36,42.6,27a8,8,0,0,0,14.8,0c6.82-16.67,23.15-27,42.6-27a46.06,46.06,0,0,1,46,46c0,53.61-77.76,102.15-96,112.8-10.83-6.31-42.63-26-66.68-52.21a8,8,0,1,0-11.8,10.82c31.17,34,72.93,56.68,74.69,57.63a8,8,0,0,0,7.58,0C136.21,228.66,240,172,240,102A62.07,62.07,0,0,0,178,40Z"/></svg></div>
+        <div class="eyebrow"><span class="num">02</span> <span data-i18n="solutions.cards.saude.title">Saúde Suplementar</span></div>
+        <h2 class="visually-balance" data-magnetic data-i18n="chapters.saude.title">Dados brutos, organizados a serviço da saúde suplementar</h2>
+        <p class="lede" data-i18n="solutions.cards.saude.desc">Maximizar eficiência e qualidade na saúde suplementar.</p>
+        <p data-i18n="chapters.saude.body">Da sinistralidade à rede credenciada, cruzamos indicadores operacionais e regulatórios para apoiar decisões mais seguras diante das exigências da ANS.</p>
+        <ul class="term-chips" aria-label="Temas relacionados" data-i18n-aria-label="a11y.relatedTopics"><li data-term="Sinistralidade">Sinistralidade</li><li data-term="Rede credenciada">Rede credenciada</li><li data-term="Regulação ANS">Regulação ANS</li></ul>
+      </div>
+      <div class="chapter-figure tilt-3d" data-reveal data-figure="pulse-grid">
+        <canvas class="living-field" data-order="0.18" data-density="0.5" aria-hidden="true"></canvas>
+        <div class="figure-motif">
+          <svg class="chart-svg" viewBox="0 0 320 200" aria-hidden="true">
+            <defs>
+              <linearGradient id="areaFill1" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#41b7c4" stop-opacity=".35"/>
+                <stop offset="100%" stop-color="#41b7c4" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <g class="grid-line"><line x1="0" y1="50" x2="320" y2="50"/><line x1="0" y1="100" x2="320" y2="100"/><line x1="0" y1="150" x2="320" y2="150"/></g>
+            <line class="axis-line" x1="0" y1="180" x2="320" y2="180"/>
+            <path d="M20 150 L80 120 L150 135 L220 70 L300 40 L300 180 L20 180 Z" fill="url(#areaFill1)" stroke="none"/>
+            <path class="draw" pathLength="1" d="M20 150 L80 120 L150 135 L220 70 L300 40" fill="none" stroke="#41b7c4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <g fill="#7ed4dd">
+              <circle cx="20" cy="150" r="3.5" data-tooltip="Sinistralidade" data-term="Sinistralidade"/>
+              <circle cx="80" cy="120" r="3.5" data-tooltip="Rede credenciada" data-term="Rede credenciada"/>
+              <circle cx="150" cy="135" r="3.5" data-tooltip="Regulação ANS" data-term="Regulação ANS"/>
+              <circle cx="220" cy="70" r="3.5" data-tooltip="Sinistralidade" data-term="Sinistralidade"/>
+            </g>
+            <circle class="node-pulse" cx="300" cy="40" r="5" fill="#41b7c4" data-tooltip="Indicador mais recente" data-term="Indicador mais recente"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter section-bg-dark on-dark" id="calculo-riscos" data-chapter="2">
+    <div class="scene" aria-hidden="true"></div>
+    <div class="container chapter-grid reverse">
+      <div class="chapter-copy" data-reveal>
+        <div class="icon-badge chapter-icon tilt-3d" aria-hidden="true"><svg class="rc-icon" viewBox="0 0 256 256" fill="url(#iconGrad)"><path d="M120,136V96a8,8,0,0,1,16,0v40a8,8,0,0,1-16,0Zm8,48a12,12,0,1,0-12-12A12,12,0,0,0,128,184ZM224,56v56c0,52.72-25.52,84.67-46.93,102.19-23.06,18.86-46,25.27-47,25.53a8,8,0,0,1-4.2,0c-1-.26-23.91-6.67-47-25.53C57.52,196.67,32,164.72,32,112V56A16,16,0,0,1,48,40H208A16,16,0,0,1,224,56Zm-16,0L48,56l0,56c0,37.3,13.82,67.51,41.07,89.81A128.25,128.25,0,0,0,128,223.62a129.3,129.3,0,0,0,39.41-22.2C194.34,179.16,208,149.07,208,112Z"/></svg></div>
+        <div class="eyebrow"><span class="num">03</span> <span data-i18n="solutions.cards.riscos.title">Cálculo de Riscos</span></div>
+        <h2 class="visually-balance" data-magnetic data-i18n="chapters.riscos.title">Modelos precisos se estabilizando em torno do risco real</h2>
+        <p class="lede" data-i18n="solutions.cards.riscos.desc">Avaliação meticulosa e calculada de riscos.</p>
+        <p data-i18n="chapters.riscos.body">Da precificação às reservas técnicas, os modelos combinam sinistralidade histórica, tendências de utilização e cenários de estresse para dimensionar o risco com rigor técnico.</p>
+        <ul class="term-chips" aria-label="Temas relacionados" data-i18n-aria-label="a11y.relatedTopics"><li data-term="Value at Risk">Value at Risk</li><li data-term="Reservas técnicas">Reservas técnicas</li><li data-term="Estresse atuarial">Estresse atuarial</li></ul>
+      </div>
+      <div class="chapter-figure tilt-3d" data-reveal>
+        <canvas class="living-field" data-order="0.28" data-density="0.5" aria-hidden="true"></canvas>
+        <div class="figure-motif">
+          <svg class="chart-svg" viewBox="0 0 320 200" aria-hidden="true">
+            <g transform="translate(160,150)">
+              <path class="grid-line" fill="none" d="M-110 0 A110 110 0 0 1 110 0" stroke-width="18"/>
+              <path fill="none" stroke="#41b7c4" stroke-width="18" stroke-linecap="round"
+                    d="M-110 0 A110 110 0 0 1 -38 -103" opacity=".85" data-tooltip="Value at Risk" data-term="Value at Risk"/>
+              <path fill="none" stroke="#7862ad" stroke-width="18" stroke-linecap="round"
+                    d="M-38 -103 A110 110 0 0 1 62 -91" opacity=".85" data-tooltip="Reservas técnicas" data-term="Reservas técnicas"/>
+              <path fill="none" stroke="#7ed4dd" stroke-width="18" stroke-linecap="round"
+                    d="M62 -91 A110 110 0 0 1 110 0" opacity=".85" data-tooltip="Estresse atuarial" data-term="Estresse atuarial"/>
+              <g class="draw" pathLength="1" stroke="#f3f0fb" stroke-width="3" stroke-linecap="round">
+                <line x1="0" y1="0" x2="-52" y2="-88"/>
+              </g>
+              <circle cx="0" cy="0" r="7" fill="#f3f0fb" data-tooltip="Risco calculado" data-term="Risco calculado"/>
+            </g>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter section-bg-deep on-dark" id="consultoria-atuarial" data-chapter="3">
+    <div class="scene" aria-hidden="true">
+      <div class="glow-orb violet far" style="width:32vw;height:32vw;bottom:-8vw;right:55%;opacity:.4;"></div>
+    </div>
+    <div class="container chapter-grid">
+      <div class="chapter-copy" data-reveal>
+        <div class="icon-badge chapter-icon tilt-3d" aria-hidden="true"><svg class="rc-icon" viewBox="0 0 256 256" fill="url(#iconGrad)"><path d="M232,208a8,8,0,0,1-8,8H32a8,8,0,0,1-8-8V48a8,8,0,0,1,16,0V156.69l50.34-50.35a8,8,0,0,1,11.32,0L128,132.69,180.69,80H160a8,8,0,0,1,0-16h40a8,8,0,0,1,8,8v40a8,8,0,0,1-16,0V91.31l-58.34,58.35a8,8,0,0,1-11.32,0L96,123.31l-56,56V200H224A8,8,0,0,1,232,208Z"/></svg></div>
+        <div class="eyebrow"><span class="num">04</span> <span data-i18n="solutions.cards.consultoria.title">Consultoria Atuarial</span></div>
+        <h2 class="visually-balance" data-magnetic data-i18n="chapters.consultoria.title">Insights estratégicos emergindo da análise técnica</h2>
+        <p class="lede" data-i18n="solutions.cards.consultoria.desc">Análise precisa e estratégica para seguros de saúde.</p>
+        <p data-i18n="chapters.consultoria.body">Da nota técnica ao parecer atuarial, a consultoria acompanha o ciclo completo de precificação, provisionamento e solvência exigido pela regulação do setor.</p>
+        <ul class="term-chips" aria-label="Temas relacionados" data-i18n-aria-label="a11y.relatedTopics"><li data-term="Precificação">Precificação</li><li data-term="Provisões técnicas">Provisões técnicas</li><li data-term="Solvência">Solvência</li></ul>
+      </div>
+      <div class="chapter-figure tilt-3d" data-reveal>
+        <canvas class="living-field" data-order="0.4" data-density="0.5" aria-hidden="true"></canvas>
+        <div class="figure-motif">
+          <svg class="chart-svg" viewBox="0 0 320 200" aria-hidden="true">
+            <g class="grid-line"><line x1="0" y1="40" x2="320" y2="40"/><line x1="0" y1="90" x2="320" y2="90"/><line x1="0" y1="140" x2="320" y2="140"/></g>
+            <line class="axis-line" x1="30" y1="10" x2="30" y2="180"/>
+            <line class="axis-line" x1="30" y1="180" x2="320" y2="180"/>
+            <path class="draw" pathLength="1" d="M30 165 L90 165 L90 120 L150 120 L150 85 L210 85 L210 45 L300 45"
+                  fill="none" stroke="#41b7c4" stroke-width="3" stroke-linejoin="round"/>
+            <g fill="#7ed4dd">
+              <circle cx="90" cy="120" r="3.5" data-tooltip="Precificação" data-term="Precificação"/>
+              <circle cx="150" cy="85" r="3.5" data-tooltip="Provisões técnicas" data-term="Provisões técnicas"/>
+              <circle cx="210" cy="45" r="3.5" data-tooltip="Solvência" data-term="Solvência"/>
+            </g>
+            <circle class="node-pulse" cx="300" cy="45" r="5.5" fill="#41b7c4" data-tooltip="Parecer atuarial" data-term="Parecer atuarial"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter section-bg-dark on-dark" id="avaliacao-carteira" data-chapter="4">
+    <div class="scene" aria-hidden="true"></div>
+    <div class="container chapter-grid reverse">
+      <div class="chapter-copy" data-reveal>
+        <div class="icon-badge chapter-icon tilt-3d" aria-hidden="true"><svg class="rc-icon" viewBox="0 0 256 256" fill="url(#iconGrad)"><path d="M230.91,172A8,8,0,0,1,228,182.91l-96,56a8,8,0,0,1-8.06,0l-96-56A8,8,0,0,1,36,169.09l92,53.65,92-53.65A8,8,0,0,1,230.91,172ZM220,121.09l-92,53.65L36,121.09A8,8,0,0,0,28,134.91l96,56a8,8,0,0,0,8.06,0l96-56A8,8,0,1,0,220,121.09ZM24,80a8,8,0,0,1,4-6.91l96-56a8,8,0,0,1,8.06,0l96,56a8,8,0,0,1,0,13.82l-96,56a8,8,0,0,1-8.06,0l-96-56A8,8,0,0,1,24,80Zm23.88,0L128,126.74,208.12,80,128,33.26Z"/></svg></div>
+        <div class="eyebrow"><span class="num">05</span> <span data-i18n="solutions.cards.carteira.title">Avaliação de Carteira</span></div>
+        <h2 class="visually-balance" data-magnetic data-i18n="chapters.carteira.title">Camadas de dados revelando o retrato completo da carteira</h2>
+        <p class="lede" data-i18n="solutions.cards.carteira.desc">Exploração detalhada de dados para insights estratégicos.</p>
+        <p data-i18n="chapters.carteira.body">Da segmentação por perfil de beneficiário à leitura de sinistro incorrido, a avaliação de carteira revela padrões de utilização essenciais para decisões de renovação e precificação.</p>
+        <ul class="term-chips" aria-label="Temas relacionados" data-i18n-aria-label="a11y.relatedTopics"><li data-term="Segmentação de carteira">Segmentação de carteira</li><li data-term="Sinistro incorrido">Sinistro incorrido</li><li data-term="Renovação de contrato">Renovação de contrato</li></ul>
+      </div>
+      <div class="chapter-figure tilt-3d" data-reveal>
+        <canvas class="living-field" data-order="0.52" data-density="0.5" aria-hidden="true"></canvas>
+        <div class="figure-motif">
+          <svg class="chart-svg" viewBox="0 0 320 200" aria-hidden="true">
+            <g class="grid-line"><line x1="0" y1="50" x2="320" y2="50"/><line x1="0" y1="100" x2="320" y2="100"/><line x1="0" y1="150" x2="320" y2="150"/></g>
+            <line class="axis-line" x1="0" y1="180" x2="320" y2="180"/>
+            <g class="bars">
+              <rect x="30" y="110" width="30" height="70" fill="#473674" data-h="70" data-tooltip="Segmentação de carteira" data-term="Segmentação de carteira"/>
+              <rect x="80" y="70" width="30" height="110" fill="#5c4990" data-h="110" data-tooltip="Sinistro incorrido" data-term="Sinistro incorrido"/>
+              <rect x="130" y="130" width="30" height="50" fill="#7862ad" data-h="50" data-tooltip="Renovação de contrato" data-term="Renovação de contrato"/>
+              <rect x="180" y="40" width="30" height="140" fill="#41b7c4" data-h="140" data-tooltip="Segmentação de carteira" data-term="Segmentação de carteira"/>
+              <rect x="230" y="90" width="30" height="90" fill="#7ed4dd" data-h="90" data-tooltip="Sinistro incorrido" data-term="Sinistro incorrido"/>
+            </g>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter section-bg-deep on-dark" id="modelagem-estatistica" data-chapter="5">
+    <div class="scene" aria-hidden="true">
+      <div class="glow-orb cyan far" style="width:28vw;height:28vw;top:10%;right:-6vw;opacity:.35;"></div>
+    </div>
+    <div class="container chapter-grid">
+      <div class="chapter-copy" data-reveal>
+        <div class="icon-badge chapter-icon tilt-3d" aria-hidden="true"><svg class="rc-icon" viewBox="0 0 256 256" fill="url(#iconGrad)"><path d="M232,208a8,8,0,0,1-8,8H32a8,8,0,0,1-8-8V48a8,8,0,0,1,16,0V200H224A8,8,0,0,1,232,208ZM132,160a12,12,0,1,0-12-12A12,12,0,0,0,132,160Zm-24-56A12,12,0,1,0,96,92,12,12,0,0,0,108,104ZM76,176a12,12,0,1,0-12-12A12,12,0,0,0,76,176Zm96-48a12,12,0,1,0-12-12A12,12,0,0,0,172,128Zm24-40a12,12,0,1,0-12-12A12,12,0,0,0,196,88Zm-20,76a12,12,0,1,0,12-12A12,12,0,0,0,176,164Z"/></svg></div>
+        <div class="eyebrow"><span class="num">06</span> <span data-i18n="solutions.cards.modelagem.title">Modelagem Estatística</span></div>
+        <h2 class="visually-balance" data-magnetic data-i18n="chapters.modelagem.title">Curvas e padrões que traduzem incerteza em precisão</h2>
+        <p class="lede" data-i18n="solutions.cards.modelagem.desc">Modelagem estatística para insights precisos.</p>
+        <ul class="term-chips" aria-label="Temas relacionados" data-i18n-aria-label="a11y.relatedTopics"><li data-term="Regressão">Regressão</li><li data-term="Séries temporais">Séries temporais</li><li data-term="Distribuições de perda">Distribuições de perda</li></ul>
+      </div>
+      <div class="chapter-figure tilt-3d" data-reveal>
+        <canvas class="living-field" data-order="0.66" data-density="0.5" aria-hidden="true"></canvas>
+        <div class="figure-motif">
+          <svg class="chart-svg" viewBox="0 0 320 200" aria-hidden="true">
+            <defs>
+              <linearGradient id="areaFill5" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#41b7c4" stop-opacity=".3"/>
+                <stop offset="100%" stop-color="#41b7c4" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <g class="grid-line"><line x1="0" y1="60" x2="320" y2="60"/><line x1="0" y1="120" x2="320" y2="120"/></g>
+            <line class="axis-line" x1="0" y1="175" x2="320" y2="175"/>
+            <path d="M20 175 C 90 175, 110 20, 165 20 C 220 20, 240 175, 300 175 Z" fill="url(#areaFill5)" stroke="none"/>
+            <path class="draw" pathLength="1" d="M20 175 C 90 175, 110 20, 165 20 C 220 20, 240 175, 300 175" fill="none" stroke="#41b7c4" stroke-width="2.5"/>
+            <g fill="#b7e9ee" opacity=".8">
+              <circle cx="60" cy="150" r="2.5" data-tooltip="Regressão" data-term="Regressão"/><circle cx="100" cy="90" r="2.5" data-tooltip="Séries temporais" data-term="Séries temporais"/><circle cx="140" cy="55" r="2.5" data-tooltip="Distribuições de perda" data-term="Distribuições de perda"/>
+              <circle cx="190" cy="50" r="2.5" data-tooltip="Regressão" data-term="Regressão"/><circle cx="230" cy="95" r="2.5" data-tooltip="Séries temporais" data-term="Séries temporais"/><circle cx="270" cy="150" r="2.5" data-tooltip="Distribuições de perda" data-term="Distribuições de perda"/>
+            </g>
+            <circle class="node-pulse" cx="165" cy="20" r="5" fill="#7ed4dd" data-tooltip="Curva ajustada" data-term="Curva ajustada"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter section-bg-dark on-dark" id="analise-dados" data-chapter="6">
+    <div class="scene" aria-hidden="true"></div>
+    <div class="container chapter-grid reverse">
+      <div class="chapter-copy" data-reveal>
+        <div class="icon-badge chapter-icon tilt-3d" aria-hidden="true"><svg class="rc-icon" viewBox="0 0 256 256" fill="url(#iconGrad)"><path d="M128,24C74.17,24,32,48.6,32,80v96c0,31.4,42.17,56,96,56s96-24.6,96-56V80C224,48.6,181.83,24,128,24Zm80,104c0,9.62-7.88,19.43-21.61,26.92C170.93,163.35,150.19,168,128,168s-42.93-4.65-58.39-13.08C55.88,147.43,48,137.62,48,128V111.36c17.06,15,46.23,24.64,80,24.64s62.94-9.68,80-24.64ZM69.61,53.08C85.07,44.65,105.81,40,128,40s42.93,4.65,58.39,13.08C200.12,60.57,208,70.38,208,80s-7.88,19.43-21.61,26.92C170.93,115.35,150.19,120,128,120s-42.93-4.65-58.39-13.08C55.88,99.43,48,89.62,48,80S55.88,60.57,69.61,53.08ZM186.39,202.92C170.93,211.35,150.19,216,128,216s-42.93-4.65-58.39-13.08C55.88,195.43,48,185.62,48,176V159.36c17.06,15,46.23,24.64,80,24.64s62.94-9.68,80-24.64V176C208,185.62,200.12,195.43,186.39,202.92Z"/></svg></div>
+        <div class="eyebrow"><span class="num">07</span> <span data-i18n="solutions.cards.analise.title">Análise de Dados</span></div>
+        <h2 class="visually-balance" data-magnetic data-i18n="chapters.analise.title">A leitura certa transforma dados em decisões assertivas</h2>
+        <p class="lede" data-i18n="solutions.cards.analise.desc">Interpretação de dados para estratégias assertivas.</p>
+        <ul class="term-chips" aria-label="Temas relacionados" data-i18n-aria-label="a11y.relatedTopics"><li data-term="Data quality">Data quality</li><li data-term="Dashboards">Dashboards</li><li data-term="Indicadores-chave">Indicadores-chave</li></ul>
+      </div>
+      <div class="chapter-figure tilt-3d" data-reveal>
+        <canvas class="living-field" data-order="0.8" data-density="0.5" aria-hidden="true"></canvas>
+        <div class="figure-motif">
+          <svg class="chart-svg" viewBox="0 0 320 200" aria-hidden="true">
+            <g transform="translate(160,100)">
+              <path class="draw" pathLength="1" fill="none" stroke="#7ed4dd" stroke-width="1.6" opacity=".9"
+                    d="M0 -85 L74 -42 L74 42 L0 85 L-74 42 L-74 -42 Z"/>
+              <g class="draw" pathLength="1" stroke="#7ed4dd" stroke-width="1" opacity=".55">
+                <line x1="0" y1="-85" x2="0" y2="85"/><line x1="-74" y1="-42" x2="74" y2="42"/><line x1="74" y1="-42" x2="-74" y2="42"/>
+              </g>
+              <g fill="#41b7c4">
+                <circle cx="0" cy="-85" r="3.5" data-tooltip="Data quality" data-term="Data quality"/>
+                <circle cx="74" cy="-42" r="3.5" data-tooltip="Dashboards" data-term="Dashboards"/>
+                <circle cx="74" cy="42" r="3.5" data-tooltip="Indicadores-chave" data-term="Indicadores-chave"/>
+                <circle cx="0" cy="85" r="3.5" data-tooltip="Data quality" data-term="Data quality"/>
+                <circle cx="-74" cy="42" r="3.5" data-tooltip="Dashboards" data-term="Dashboards"/>
+                <circle cx="-74" cy="-42" r="3.5" data-tooltip="Indicadores-chave" data-term="Indicadores-chave"/>
+              </g>
+              <circle class="node-pulse" cx="0" cy="0" r="7" fill="#41b7c4" data-tooltip="Leitura consolidada" data-term="Leitura consolidada"/>
+            </g>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 9. VISION ===================== -->
+  <section class="section section-bg-tint on-light" id="visao" aria-labelledby="visao-title">
+    <div class="scene" aria-hidden="true" style="opacity:.5;">
+      <div class="glow-orb cyan" style="width:32vw;height:32vw;top:-8vw;right:-6vw;opacity:.25;"></div>
+      <!-- Round 8: previously the only section-wide element that wasn't visibly
+           "alive" on its own (no canvas, no second depth layer) — everything
+           else on the page carries either a living-field particle canvas or a
+           two-orb pair. Adding both here, tuned down (low density, low
+           opacity) for a light background, brings Visão in line with the rest
+           of the page's dynamic-background language instead of reading as the
+           one flat screen in the scroll. -->
+      <div class="glow-orb violet far" style="width:26vw;height:26vw;bottom:-10vw;left:-8vw;opacity:.16;"></div>
+      <canvas class="living-field" data-order="0.22" data-density="0.3" aria-hidden="true"></canvas>
+    </div>
+    <div class="container">
+      <div class="eyebrow" data-reveal><span class="num">08</span> <span data-i18n="vision.eyebrow">Nossa Visão</span></div>
+      <h2 id="visao-title" class="sr-only" data-i18n="vision.eyebrow">Nossa Visão</h2>
+
+      <div class="vision-statements">
+        <p class="vision-line" data-reveal data-i18n="vision.line1">Antecipar riscos é proteger o futuro do negócio.</p>
+        <p class="vision-line" data-reveal data-i18n="vision.line2">Inteligência atuarial para transformar incerteza em estratégia.</p>
+        <p class="vision-line" data-reveal data-i18n-html="vision.line3">Nosso trabalho começa onde os dados terminam: <span class="accent">na decisão</span>.</p>
+      </div>
+
+      <blockquote class="vision-quote" data-reveal data-i18n-html="vision.quote">
+        Ser <span class="accent">referência</span> em assessoria atuarial do Brasil, reconhecida por sua expertise em saúde suplementar, capacidade de gerar resultados para seus clientes e contribuição para a evolução do setor.
+      </blockquote>
+      <p class="lede wide" data-reveal data-i18n="vision.closing" style="margin-top:2rem;">A empresa estará na vanguarda das inovações e tendências do mercado, oferecendo soluções que garantam a sustentabilidade das operadoras e o acesso à saúde de qualidade para a população.</p>
+    </div>
+  </section>
+
+  <!-- ===================== 10. PARTNERS ===================== -->
+  <section class="section section-bg-dark on-dark" id="parceiros" aria-labelledby="parceiros-title">
+    <div class="scene" aria-hidden="true">
+      <div class="data-veil">
+        <svg viewBox="0 0 900 400" width="900" height="400" style="left:-8%;top:-15%;" aria-hidden="true">
+          <line x1="30" y1="340" x2="850" y2="340" stroke="#c7bfe0" stroke-width="1"/>
+          <g fill="none" stroke="#41b7c4" stroke-width="2">
+            <path d="M40 300 L140 260 L240 280 L340 200 L440 220 L540 140 L640 170 L740 90"/>
+          </g>
+          <g fill="#7ed4dd"><circle cx="140" cy="260" r="4"/><circle cx="340" cy="200" r="4"/><circle cx="540" cy="140" r="4"/><circle cx="740" cy="90" r="4"/></g>
+        </svg>
+      </div>
+    </div>
+    <div class="container">
+      <div class="eyebrow" data-reveal><span class="num">09</span> <span data-i18n="partners.eyebrow">Parceiros</span></div>
+      <h2 id="parceiros-title" class="visually-balance" data-reveal data-magnetic data-i18n="partners.title">Nossos Parceiros</h2>
+      <div class="partners-row" data-reveal>
+        <div class="partner-card">
+          <img class="partner-logo" src="https://static.wixstatic.com/media/9c4ce7_b4048adf149e46c894dd3ad51c0d9c6f~mv2.png" alt="Flórida Consultoria" loading="lazy">
+        </div>
+        <div class="partner-card">
+          <img class="partner-logo" src="https://static.wixstatic.com/media/9c4ce7_0f4cdd57dfe947ff92f32982a97427c7~mv2.png" alt="NF Sociedade de Advogados" loading="lazy">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 11. CONTACT ===================== -->
+  <section class="section section-bg-deep on-dark" id="contato" aria-labelledby="contato-title">
+    <div class="scene" aria-hidden="true">
+      <div class="grid-plane" style="opacity:.2;"></div>
+      <div class="glow-orb cyan" style="width:34vw;height:34vw;bottom:-10vw;left:-8vw;opacity:.3;"></div>
+      <div class="data-veil">
+        <svg viewBox="0 0 700 700" width="700" height="700" style="right:-10%;top:-8%;" aria-hidden="true">
+          <circle cx="350" cy="350" r="220" fill="none" stroke="#7ed4dd" stroke-width="1"/>
+          <circle cx="350" cy="350" r="140" fill="none" stroke="#7ed4dd" stroke-width="1"/>
+          <line x1="350" y1="60" x2="350" y2="640" stroke="#c7bfe0" stroke-width="1"/>
+          <line x1="60" y1="350" x2="640" y2="350" stroke="#c7bfe0" stroke-width="1"/>
+        </svg>
+      </div>
+    </div>
+    <div class="container">
+      <div class="eyebrow" data-reveal><span class="num">10</span> <span data-i18n="contact.eyebrow">Contato</span></div>
+      <h2 id="contato-title" class="visually-balance" data-reveal data-magnetic data-i18n="cta.talkToSpecialist">Falar com um especialista</h2>
+      <p class="lede" data-reveal data-i18n="contact.lede">Para qualquer solicitação, preencha os campos no formulário abaixo:</p>
+
+      <div class="contact-grid" style="margin-top:3rem;">
+        <div class="stack gap-lg" data-reveal>
+          <div>
+            <h3 style="margin-bottom:1rem;" data-i18n="contact.addressTitle">Nosso Endereço</h3>
+            <div class="stack gap-md">
+              <div class="contact-detail">
+                <svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M128,64a40,40,0,1,0,40,40A40,40,0,0,0,128,64Zm0,64a24,24,0,1,1,24-24A24,24,0,0,1,128,128Zm0-112a88.1,88.1,0,0,0-88,88c0,31.4,14.51,64.68,42,96.25a254.19,254.19,0,0,0,41.45,38.3,8,8,0,0,0,9.18,0A254.19,254.19,0,0,0,174,200.25c27.45-31.57,42-64.85,42-96.25A88.1,88.1,0,0,0,128,16Zm0,206c-16.53-13-72-60.75-72-118a72,72,0,0,1,144,0C200,161.23,144.53,209,128,222Z"/></svg>
+                <address>Rua Pedro Taques, 99, Conjunto 11B<br>Consolação, São Paulo - SP</address>
+              </div>
+              <div class="contact-detail">
+                <svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M222.37,158.46l-47.11-21.11-.13-.06a16,16,0,0,0-15.17,1.4,8.12,8.12,0,0,0-.75.56L134.87,160c-15.42-7.49-31.34-23.29-38.83-38.51l20.78-24.71c.2-.25.39-.5.57-.77a16,16,0,0,0,1.32-15.06l0-.12L97.54,33.64a16,16,0,0,0-16.62-9.52A56.26,56.26,0,0,0,32,80c0,79.4,64.6,144,144,144a56.26,56.26,0,0,0,55.88-48.92A16,16,0,0,0,222.37,158.46ZM176,208A128.14,128.14,0,0,1,48,80,40.2,40.2,0,0,1,82.87,40a.61.61,0,0,0,0,.12l21,47L83.2,111.86a6.13,6.13,0,0,0-.57.77,16,16,0,0,0-1,15.7c9.06,18.53,27.73,37.06,46.46,46.11a16,16,0,0,0,15.75-1.14,8.44,8.44,0,0,0,.74-.56L168.89,152l47,21.05h0s.08,0,.11,0A40.21,40.21,0,0,1,176,208Z"/></svg>
+                <a href="tel:+5511983792587" data-i18n="contact.phoneDisplay">+55 11 98379-2587</a>
+              </div>
+              <div class="contact-detail">
+                <svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M224,48H32a8,8,0,0,0-8,8V192a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V56A8,8,0,0,0,224,48ZM203.43,64,128,133.15,52.57,64ZM216,192H40V74.19l82.59,75.71a8,8,0,0,0,10.82,0L216,74.19V192Z"/></svg>
+                <a href="mailto:contatos@algtrix.com">contatos@algtrix.com</a>
+              </div>
+            </div>
+          </div>
+          <div class="contact-cta-row">
+            <a class="btn btn-primary" href="tel:+5511983792587" data-i18n="contact.callNow">Ligar agora</a>
+            <a class="btn btn-ghost" href="mailto:contatos@algtrix.com" data-i18n="contact.sendEmail">Enviar e-mail</a>
+          </div>
+        </div>
+
+        <!-- Site is static (GitHub Pages, no server-side build step), so form delivery
+             goes through Web3Forms: a free (250 submissions/month) form-to-email API that
+             needs no backend of our own — just a POST with this access key from the JS
+             handler below. access_key is a per-account routing token, not a secret that
+             grants any access to anything beyond "deliver a submission to this inbox", so
+             it's fine to ship in client-side HTML same as any other public API key of this
+             kind. botcheck is Web3Forms' own honeypot convention: hidden from real visitors,
+             left for bots to fill; the handler rejects the submission if it's non-empty. -->
+        <form class="stack contact-wizard" id="contact-form" data-reveal novalidate>
+          <input type="hidden" name="access_key" value="9ad3b6ef-1cc8-42c7-a2ee-728f14db3778">
+          <input type="checkbox" name="botcheck" style="display:none;" tabindex="-1" autocomplete="off">
+          <div class="wizard-progress" aria-hidden="true">
+            <span class="wizard-dot" data-dot></span>
+            <span class="wizard-dot" data-dot></span>
+            <span class="wizard-dot" data-dot></span>
+          </div>
+
+          <fieldset class="wizard-step" data-step="1">
+            <legend class="wizard-question" data-i18n="form.step1Question">Como podemos ajudar?</legend>
+            <div class="service-grid" role="radiogroup" aria-label="Tipo de necessidade" data-i18n-aria-label="form.ariaServiceGroup">
+              <label class="service-chip">
+                <input type="radio" name="servico" value="Consultoria atuarial" data-service-key="consultoria" required>
+                <span class="chip-label" data-i18n="form.services.consultoria">Consultoria atuarial</span>
+              </label>
+              <label class="service-chip">
+                <input type="radio" name="servico" value="Análise de dados" data-service-key="analise">
+                <span class="chip-label" data-i18n="form.services.analise">Análise de dados</span>
+              </label>
+              <label class="service-chip">
+                <input type="radio" name="servico" value="Avaliação de carteira" data-service-key="carteira">
+                <span class="chip-label" data-i18n="form.services.carteira">Avaliação de carteira</span>
+              </label>
+              <label class="service-chip">
+                <input type="radio" name="servico" value="Gestão de riscos" data-service-key="riscos">
+                <span class="chip-label" data-i18n="form.services.riscos">Gestão de riscos</span>
+              </label>
+              <label class="service-chip">
+                <input type="radio" name="servico" value="Modelagem estatística" data-service-key="modelagem">
+                <span class="chip-label" data-i18n="form.services.modelagem">Modelagem estatística</span>
+              </label>
+              <label class="service-chip">
+                <input type="radio" name="servico" value="Outro" data-service-key="outro">
+                <span class="chip-label" data-i18n="form.services.outro">Outro</span>
+              </label>
+            </div>
+            <div class="wizard-nav">
+              <span></span>
+              <button type="button" class="btn btn-primary" data-next data-i18n="form.next">Próximo</button>
+            </div>
+          </fieldset>
+
+          <fieldset class="wizard-step" data-step="2" hidden>
+            <legend class="wizard-question" data-i18n="form.step2Question">Conte brevemente sobre sua necessidade</legend>
+            <div class="field">
+              <label class="field-label" for="f-mensagem" data-i18n="form.messageLabel">Mensagem</label>
+              <textarea id="f-mensagem" name="mensagem" placeholder="Descreva o que você precisa..." data-i18n-placeholder="form.messagePlaceholder" required></textarea>
+            </div>
+            <div class="wizard-nav">
+              <button type="button" class="btn btn-ghost" data-back data-i18n="form.back">Voltar</button>
+              <button type="button" class="btn btn-primary" data-next data-i18n="form.next">Próximo</button>
+            </div>
+          </fieldset>
+
+          <fieldset class="wizard-step" data-step="3" hidden>
+            <legend class="wizard-question" data-i18n="form.step3Question">Como podemos falar com você?</legend>
+            <div class="form-row two">
+              <div class="field">
+                <label class="field-label" for="f-nome" data-i18n="form.nameLabel">Nome</label>
+                <input id="f-nome" name="nome" type="text" placeholder="Seu nome completo" data-i18n-placeholder="form.namePlaceholder" autocomplete="name" required>
+              </div>
+              <div class="field">
+                <label class="field-label" for="f-empresa" data-i18n="form.companyLabel">Empresa</label>
+                <input id="f-empresa" name="empresa" type="text" placeholder="Nome da operadora" data-i18n-placeholder="form.companyPlaceholder" autocomplete="organization">
+              </div>
+            </div>
+            <div class="form-row two">
+              <div class="field">
+                <label class="field-label" for="f-email" data-i18n="form.emailLabel">Email</label>
+                <input id="f-email" name="email" type="email" placeholder="voce@empresa.com" autocomplete="email" required>
+              </div>
+              <div class="field">
+                <label class="field-label" for="f-telefone" data-i18n="form.phoneLabel">Telefone</label>
+                <input id="f-telefone" name="telefone" type="tel" placeholder="+55 (11) 98379-2587" autocomplete="tel">
+              </div>
+            </div>
+            <div class="wizard-nav">
+              <button type="button" class="btn btn-ghost" data-back data-i18n="form.back">Voltar</button>
+              <button type="submit" class="btn btn-primary" data-i18n="cta.talkToSpecialist">Falar com um especialista</button>
+            </div>
+          </fieldset>
+
+          <p class="form-status" id="form-status" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ===================== FOOTER ===================== -->
+<footer class="site-footer">
+  <a class="back-to-top" href="#inicio">
+    <span data-i18n="footer.backToTop">Voltar ao topo</span>
+    <svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M213.66,165.66a8,8,0,0,1-11.32,0L128,91.31,53.66,165.66a8,8,0,0,1-11.32-11.32l80-80a8,8,0,0,1,11.32,0l80,80A8,8,0,0,1,213.66,165.66Z"/></svg>
+  </a>
+  <div class="brand" style="justify-content:center;">
+    <img src="https://static.wixstatic.com/media/9c4ce7_221fe3d98f394b629a72f24a223cbc1d~mv2.png" alt="Algtrix" style="height:26px;opacity:.85;">
+  </div>
+  <div class="social-row">
+    <a href="https://www.linkedin.com/company/algtrix/about/" aria-label="Algtrix no LinkedIn" data-i18n-aria-label="footer.linkedinLabel" target="_blank" rel="noopener">
+      <svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M216,24H40A16,16,0,0,0,24,40V216a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V40A16,16,0,0,0,216,24Zm0,192H40V40H216V216ZM96,112v64a8,8,0,0,1-16,0V112a8,8,0,0,1,16,0Zm88,28v36a8,8,0,0,1-16,0V140a20,20,0,0,0-40,0v36a8,8,0,0,1-16,0V112a8,8,0,0,1,15.79-1.78A36,36,0,0,1,184,140ZM100,84A12,12,0,1,1,88,72,12,12,0,0,1,100,84Z"/></svg>
+    </a>
+    <a href="https://twitter.com/" aria-label="Algtrix no Twitter" data-i18n-aria-label="footer.twitterLabel" target="_blank" rel="noopener">
+      <svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M247.39,68.94A8,8,0,0,0,240,64H209.57A48.66,48.66,0,0,0,168.1,40a46.91,46.91,0,0,0-33.75,13.7A47.9,47.9,0,0,0,120,88v6.09C79.74,83.47,46.81,50.72,46.46,50.37a8,8,0,0,0-13.65,4.92c-4.31,47.79,9.57,79.77,22,98.18a110.93,110.93,0,0,0,21.88,24.2c-15.23,17.53-39.21,26.74-39.47,26.84a8,8,0,0,0-3.85,11.93c.75,1.12,3.75,5.05,11.08,8.72C53.51,229.7,65.48,232,80,232c70.67,0,129.72-54.42,135.75-124.44l29.91-29.9A8,8,0,0,0,247.39,68.94Zm-45,29.41a8,8,0,0,0-2.32,5.14C196,166.58,143.28,216,80,216c-10.56,0-18-1.4-23.22-3.08,11.51-6.25,27.56-17,37.88-32.48A8,8,0,0,0,92,169.08c-.47-.27-43.91-26.34-44-96,16,13,45.25,33.17,78.67,38.79A8,8,0,0,0,136,104V88a32,32,0,0,1,9.6-22.92A30.94,30.94,0,0,1,167.9,56c12.66.16,24.49,7.88,29.44,19.21A8,8,0,0,0,204.67,80h16Z"/></svg>
+    </a>
+  </div>
+  <p style="font-size:.8rem;opacity:.6;margin-top:1.5rem;">© <span id="year"></span> Algtrix. <span data-i18n="footer.rights">Todos os direitos reservados.</span></p>
+</footer>
+
+<!-- ===================== SCRIPTS ===================== -->
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/SplitText.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
+<script>
+(function(){
+  "use strict";
+
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduceMotion){ document.documentElement.classList.add('reduced-motion'); }
+
+  /* ==========================================================================
+     INTERNATIONALIZATION (PT-BR / EN / ES)
+     Centralized dictionary + a small engine that walks data-i18n(-placeholder/
+     -aria-label/-html) elements. Runs synchronously, first thing, so every
+     later IIFE below (magnetic split, manifesto SplitText, etc.) reads
+     already-translated text on first paint — no flash of the wrong language.
+     rebuildMagneticWord/rebuildMagneticHeadings/rebuildManifestoAll start as
+     no-ops and are reassigned further down once those features initialize;
+     applyLanguage() calls them again after a language switch so any element
+     that had been decomposed into per-character spans gets rebuilt from the
+     freshly translated text instead of showing stale characters. ========================================================================== */
+  var I18N = {
+    pt: {
+      meta: {
+        title: 'Algtrix | Consultoria Atuarial | Transformamos Dados em Resultados',
+        description: 'Algtrix é consultoria atuarial especializada em saúde suplementar: cálculo de riscos, avaliação de carteira, modelagem estatística e análise de dados para operadoras de saúde.'
+      },
+      a11y: { skipLink: 'Pular para o conteúdo principal', relatedTopics: 'Temas relacionados' },
+      nav: {
+        home: 'Início', solutions: 'Soluções', vision: 'Visão', partners: 'Parceiros', contact: 'Contato',
+        ariaBrand: 'Algtrix, Início', ariaMain: 'Navegação principal', openMenu: 'Abrir menu'
+      },
+      cta: { talkToSpecialist: 'Falar com um especialista' },
+      hero: {
+        srWord: 'Consultoria', magneticWord: 'CONSULTORIA', gradientWord: 'ATUARIAL',
+        lede: 'Transformamos dados em resultados: precisão atuarial e inteligência de dados para a sustentabilidade da saúde suplementar.',
+        ctaSecondary: 'Explorar nossas soluções', scrollCue: 'Role para explorar'
+      },
+      manifesto: {
+        kicker: 'O caminho dos dados',
+        p1: 'Dados brutos.', p2: 'Organizados com rigor técnico.', p3: 'Transformados em inteligência atuarial.',
+        p4: 'Prontos para orientar cada decisão.', p5: 'Resultados que sustentam o negócio.'
+      },
+      solutions: {
+        eyebrow: 'Panorama', title: 'Soluções otimizadas para áreas de atuação',
+        cards: {
+          saude: { title: 'Saúde Suplementar', desc: 'Maximizar eficiência e qualidade na saúde suplementar.' },
+          riscos: { title: 'Cálculo de Riscos', desc: 'Avaliação meticulosa e calculada de riscos.' },
+          consultoria: { title: 'Consultoria Atuarial', desc: 'Análise precisa e estratégica para seguros de saúde.' },
+          carteira: { title: 'Avaliação de Carteira', desc: 'Exploração detalhada de dados para insights estratégicos.' },
+          modelagem: { title: 'Modelagem Estatística', desc: 'Modelagem estatística para insights precisos.' },
+          analise: { title: 'Análise de Dados', desc: 'Interpretação de dados para estratégias assertivas.' }
+        }
+      },
+      chapters: {
+        saude: { title: 'Dados brutos, organizados a serviço da saúde suplementar', body: 'Da sinistralidade à rede credenciada, cruzamos indicadores operacionais e regulatórios para apoiar decisões mais seguras diante das exigências da ANS.' },
+        riscos: { title: 'Modelos precisos se estabilizando em torno do risco real', body: 'Da precificação às reservas técnicas, os modelos combinam sinistralidade histórica, tendências de utilização e cenários de estresse para dimensionar o risco com rigor técnico.' },
+        consultoria: { title: 'Insights estratégicos emergindo da análise técnica', body: 'Da nota técnica ao parecer atuarial, a consultoria acompanha o ciclo completo de precificação, provisionamento e solvência exigido pela regulação do setor.' },
+        carteira: { title: 'Camadas de dados revelando o retrato completo da carteira', body: 'Da segmentação por perfil de beneficiário à leitura de sinistro incorrido, a avaliação de carteira revela padrões de utilização essenciais para decisões de renovação e precificação.' },
+        modelagem: { title: 'Curvas e padrões que traduzem incerteza em precisão' },
+        analise: { title: 'A leitura certa transforma dados em decisões assertivas' }
+      },
+      vision: {
+        eyebrow: 'Nossa Visão',
+        line1: 'Antecipar riscos é proteger o futuro do negócio.',
+        line2: 'Inteligência atuarial para transformar incerteza em estratégia.',
+        line3: 'Nosso trabalho começa onde os dados terminam: <span class="accent">na decisão</span>.',
+        quote: 'Ser <span class="accent">referência</span> em assessoria atuarial do Brasil, reconhecida por sua expertise em saúde suplementar, capacidade de gerar resultados para seus clientes e contribuição para a evolução do setor.',
+        closing: 'A empresa estará na vanguarda das inovações e tendências do mercado, oferecendo soluções que garantam a sustentabilidade das operadoras e o acesso à saúde de qualidade para a população.'
+      },
+      partners: { eyebrow: 'Parceiros', title: 'Nossos Parceiros' },
+      contact: {
+        eyebrow: 'Contato', lede: 'Para qualquer solicitação, preencha os campos no formulário abaixo:',
+        addressTitle: 'Nosso Endereço', phoneDisplay: '+55 11 98379-2587',
+        callNow: 'Ligar agora', sendEmail: 'Enviar e-mail'
+      },
+      form: {
+        step1Question: 'Como podemos ajudar?', ariaServiceGroup: 'Tipo de necessidade',
+        services: { consultoria: 'Consultoria atuarial', analise: 'Análise de dados', carteira: 'Avaliação de carteira', riscos: 'Gestão de riscos', modelagem: 'Modelagem estatística', outro: 'Outro' },
+        next: 'Próximo', back: 'Voltar',
+        step2Question: 'Conte brevemente sobre sua necessidade', messageLabel: 'Mensagem', messagePlaceholder: 'Descreva o que você precisa...',
+        step3Question: 'Como podemos falar com você?',
+        nameLabel: 'Nome', namePlaceholder: 'Seu nome completo',
+        companyLabel: 'Empresa', companyPlaceholder: 'Nome da operadora',
+        emailLabel: 'Email', phoneLabel: 'Telefone',
+        status: {
+          reviewFields: 'Revise os campos destacados antes de continuar.',
+          preparing: 'Enviando sua solicitação...',
+          success: 'Solicitação enviada com sucesso! Em breve nossa equipe entrará em contato.',
+          error: 'Não foi possível enviar agora. Tente novamente ou fale conosco por telefone/e-mail.'
+        },
+        mailto: { subjectPrefix: 'Contato via site:', subjectLabel: 'Assunto:', nameLabel: 'Nome:', companyLabel: 'Empresa:', emailLabel: 'Email:', phoneLabel: 'Telefone:', notProvided: 'não informado' }
+      },
+      footer: { backToTop: 'Voltar ao topo', rights: 'Todos os direitos reservados.', linkedinLabel: 'Algtrix no LinkedIn', twitterLabel: 'Algtrix no Twitter' }
+    },
+    en: {
+      meta: {
+        title: 'Algtrix | Actuarial Consulting | We Turn Data Into Results',
+        description: 'Algtrix is an actuarial consulting firm specialized in supplementary health insurance: risk calculation, portfolio assessment, statistical modeling and data analysis for health plan operators.'
+      },
+      a11y: { skipLink: 'Skip to main content', relatedTopics: 'Related topics' },
+      nav: {
+        home: 'Home', solutions: 'Solutions', vision: 'Vision', partners: 'Partners', contact: 'Contact',
+        ariaBrand: 'Algtrix, Home', ariaMain: 'Main navigation', openMenu: 'Open menu'
+      },
+      cta: { talkToSpecialist: 'Speak with a specialist' },
+      hero: {
+        srWord: 'Consulting', magneticWord: 'CONSULTING', gradientWord: 'ACTUARIAL',
+        lede: 'We turn data into results: actuarial precision and data intelligence for the sustainability of supplementary health insurance.',
+        ctaSecondary: 'Explore our solutions', scrollCue: 'Scroll to explore'
+      },
+      manifesto: {
+        kicker: 'The data journey',
+        p1: 'Raw data.', p2: 'Organized with technical rigor.', p3: 'Transformed into actuarial intelligence.',
+        p4: 'Ready to guide every decision.', p5: 'Results that sustain the business.'
+      },
+      solutions: {
+        eyebrow: 'Overview', title: 'Solutions optimized for every area of practice',
+        cards: {
+          saude: { title: 'Supplementary Health', desc: 'Maximizing efficiency and quality in supplementary health insurance.' },
+          riscos: { title: 'Risk Calculation', desc: 'Meticulous, carefully calculated risk assessment.' },
+          consultoria: { title: 'Actuarial Consulting', desc: 'Precise, strategic analysis for health insurance.' },
+          carteira: { title: 'Portfolio Assessment', desc: 'Detailed data exploration for strategic insights.' },
+          modelagem: { title: 'Statistical Modeling', desc: 'Statistical modeling for precise insights.' },
+          analise: { title: 'Data Analysis', desc: 'Data interpretation for effective strategies.' }
+        }
+      },
+      chapters: {
+        saude: { title: 'Raw data, organized in service of supplementary health', body: 'From loss ratio to the accredited network, we cross-reference operational and regulatory indicators to support safer decisions in the face of ANS requirements.' },
+        riscos: { title: 'Precise models converging on real risk', body: 'From pricing to technical reserves, the models combine historical claims experience, utilization trends and stress scenarios to size risk with technical rigor.' },
+        consultoria: { title: 'Strategic insights emerging from technical analysis', body: 'From the technical note to the actuarial opinion, our consulting follows the full cycle of pricing, reserving and solvency required by industry regulation.' },
+        carteira: { title: 'Layers of data revealing the full picture of the portfolio', body: 'From segmentation by beneficiary profile to incurred-claims analysis, portfolio assessment reveals utilization patterns essential to renewal and pricing decisions.' },
+        modelagem: { title: 'Curves and patterns that translate uncertainty into precision' },
+        analise: { title: 'The right read turns data into confident decisions' }
+      },
+      vision: {
+        eyebrow: 'Our Vision',
+        line1: "Anticipating risk is protecting the business's future.",
+        line2: 'Actuarial intelligence that turns uncertainty into strategy.',
+        line3: 'Our work begins where the data ends: <span class="accent">at the decision</span>.',
+        quote: 'To be a <span class="accent">reference</span> in actuarial advisory in Brazil, recognized for its expertise in supplementary health, its capacity to generate results for clients, and its contribution to the evolution of the industry.',
+        closing: 'The company will be at the forefront of market innovations and trends, offering solutions that ensure the sustainability of health plan operators and access to quality healthcare for the population.'
+      },
+      partners: { eyebrow: 'Partners', title: 'Our Partners' },
+      contact: {
+        eyebrow: 'Contact', lede: 'For any request, please fill out the form below:',
+        addressTitle: 'Our Address', phoneDisplay: '+55 11 98379-2587',
+        callNow: 'Call now', sendEmail: 'Send email'
+      },
+      form: {
+        step1Question: 'How can we help?', ariaServiceGroup: 'Type of need',
+        services: { consultoria: 'Actuarial consulting', analise: 'Data analysis', carteira: 'Portfolio assessment', riscos: 'Risk management', modelagem: 'Statistical modeling', outro: 'Other' },
+        next: 'Next', back: 'Back',
+        step2Question: 'Briefly tell us about your need', messageLabel: 'Message', messagePlaceholder: 'Describe what you need...',
+        step3Question: 'How can we reach you?',
+        nameLabel: 'Name', namePlaceholder: 'Your full name',
+        companyLabel: 'Company', companyPlaceholder: 'Health plan operator name',
+        emailLabel: 'Email', phoneLabel: 'Phone',
+        status: {
+          reviewFields: 'Please review the highlighted fields before continuing.',
+          preparing: 'Sending your request...',
+          success: 'Request sent successfully! Our team will be in touch shortly.',
+          error: "We couldn't send it right now. Please try again or reach us by phone/email."
+        },
+        mailto: { subjectPrefix: 'Website contact:', subjectLabel: 'Subject:', nameLabel: 'Name:', companyLabel: 'Company:', emailLabel: 'Email:', phoneLabel: 'Phone:', notProvided: 'not provided' }
+      },
+      footer: { backToTop: 'Back to top', rights: 'All rights reserved.', linkedinLabel: 'Algtrix on LinkedIn', twitterLabel: 'Algtrix on Twitter' }
+    },
+    es: {
+      meta: {
+        title: 'Algtrix | Consultoría Actuarial | Transformamos Datos en Resultados',
+        description: 'Algtrix es una consultoría actuarial especializada en salud suplementaria: cálculo de riesgos, evaluación de cartera, modelado estadístico y análisis de datos para operadoras de salud.'
+      },
+      a11y: { skipLink: 'Saltar al contenido principal', relatedTopics: 'Temas relacionados' },
+      nav: {
+        home: 'Inicio', solutions: 'Soluciones', vision: 'Visión', partners: 'Socios', contact: 'Contacto',
+        ariaBrand: 'Algtrix, Inicio', ariaMain: 'Navegación principal', openMenu: 'Abrir menú'
+      },
+      cta: { talkToSpecialist: 'Hablar con un especialista' },
+      hero: {
+        srWord: 'Consultoría', magneticWord: 'CONSULTORÍA', gradientWord: 'ACTUARIAL',
+        lede: 'Transformamos datos en resultados: precisión actuarial e inteligencia de datos para la sostenibilidad de la salud suplementaria.',
+        ctaSecondary: 'Explorar nuestras soluciones', scrollCue: 'Desplázate para explorar'
+      },
+      manifesto: {
+        kicker: 'El camino de los datos',
+        p1: 'Datos brutos.', p2: 'Organizados con rigor técnico.', p3: 'Transformados en inteligencia actuarial.',
+        p4: 'Listos para orientar cada decisión.', p5: 'Resultados que sostienen el negocio.'
+      },
+      solutions: {
+        eyebrow: 'Panorama', title: 'Soluciones optimizadas para cada área de actuación',
+        cards: {
+          saude: { title: 'Salud Suplementaria', desc: 'Maximizar la eficiencia y la calidad en la salud suplementaria.' },
+          riscos: { title: 'Cálculo de Riesgos', desc: 'Evaluación meticulosa y calculada de riesgos.' },
+          consultoria: { title: 'Consultoría Actuarial', desc: 'Análisis preciso y estratégico para seguros de salud.' },
+          carteira: { title: 'Evaluación de Cartera', desc: 'Exploración detallada de datos para obtener insights estratégicos.' },
+          modelagem: { title: 'Modelado Estadístico', desc: 'Modelado estadístico para insights precisos.' },
+          analise: { title: 'Análisis de Datos', desc: 'Interpretación de datos para estrategias asertivas.' }
+        }
+      },
+      chapters: {
+        saude: { title: 'Datos brutos, organizados al servicio de la salud suplementaria', body: 'Desde la siniestralidad hasta la red acreditada, cruzamos indicadores operativos y regulatorios para respaldar decisiones más seguras frente a las exigencias de la ANS.' },
+        riscos: { title: 'Modelos precisos convergiendo en torno al riesgo real', body: 'Desde la tarificación hasta las reservas técnicas, los modelos combinan la siniestralidad histórica, las tendencias de utilización y los escenarios de estrés para dimensionar el riesgo con rigor técnico.' },
+        consultoria: { title: 'Insights estratégicos que emergen del análisis técnico', body: 'Desde la nota técnica hasta el dictamen actuarial, la consultoría acompaña el ciclo completo de tarificación, constitución de reservas y solvencia exigido por la regulación del sector.' },
+        carteira: { title: 'Capas de datos que revelan el panorama completo de la cartera', body: 'Desde la segmentación por perfil de beneficiario hasta la lectura del siniestro incurrido, la evaluación de cartera revela patrones de utilización esenciales para las decisiones de renovación y tarificación.' },
+        modelagem: { title: 'Curvas y patrones que traducen la incertidumbre en precisión' },
+        analise: { title: 'La lectura correcta convierte los datos en decisiones acertadas' }
+      },
+      vision: {
+        eyebrow: 'Nuestra Visión',
+        line1: 'Anticipar riesgos es proteger el futuro del negocio.',
+        line2: 'Inteligencia actuarial para transformar la incertidumbre en estrategia.',
+        line3: 'Nuestro trabajo comienza donde terminan los datos: <span class="accent">en la decisión</span>.',
+        quote: 'Ser <span class="accent">referencia</span> en asesoría actuarial en Brasil, reconocida por su experiencia en salud suplementaria, su capacidad de generar resultados para sus clientes y su contribución a la evolución del sector.',
+        closing: 'La empresa estará a la vanguardia de las innovaciones y tendencias del mercado, ofreciendo soluciones que garanticen la sostenibilidad de las operadoras y el acceso a una salud de calidad para la población.'
+      },
+      partners: { eyebrow: 'Socios', title: 'Nuestros Socios' },
+      contact: {
+        eyebrow: 'Contacto', lede: 'Para cualquier solicitud, completa los campos del siguiente formulario:',
+        addressTitle: 'Nuestra Dirección', phoneDisplay: '+55 11 98379-2587',
+        callNow: 'Llamar ahora', sendEmail: 'Enviar correo'
+      },
+      form: {
+        step1Question: '¿Cómo podemos ayudarte?', ariaServiceGroup: 'Tipo de necesidad',
+        services: { consultoria: 'Consultoría actuarial', analise: 'Análisis de datos', carteira: 'Evaluación de cartera', riscos: 'Gestión de riesgos', modelagem: 'Modelado estadístico', outro: 'Otro' },
+        next: 'Siguiente', back: 'Atrás',
+        step2Question: 'Cuéntanos brevemente tu necesidad', messageLabel: 'Mensaje', messagePlaceholder: 'Describe lo que necesitas...',
+        step3Question: '¿Cómo podemos contactarte?',
+        nameLabel: 'Nombre', namePlaceholder: 'Tu nombre completo',
+        companyLabel: 'Empresa', companyPlaceholder: 'Nombre de la operadora',
+        emailLabel: 'Correo electrónico', phoneLabel: 'Teléfono',
+        status: {
+          reviewFields: 'Revisa los campos resaltados antes de continuar.',
+          preparing: 'Enviando tu solicitud...',
+          success: '¡Solicitud enviada con éxito! Nuestro equipo se pondrá en contacto en breve.',
+          error: 'No fue posible enviarla ahora. Intenta de nuevo o contáctanos por teléfono/correo.'
+        },
+        mailto: { subjectPrefix: 'Contacto vía sitio web:', subjectLabel: 'Asunto:', nameLabel: 'Nombre:', companyLabel: 'Empresa:', emailLabel: 'Correo electrónico:', phoneLabel: 'Teléfono:', notProvided: 'no proporcionado' }
+      },
+      footer: { backToTop: 'Volver arriba', rights: 'Todos los derechos reservados.', linkedinLabel: 'Algtrix en LinkedIn', twitterLabel: 'Algtrix en Twitter' }
+    }
+  };
+
+  /* Technical/chart glossary — shared by SVG chart tooltips ([data-term] on a
+     [data-tooltip] mark, swaps the data-tooltip attribute JS already reads)
+     and the term-chip <li> lists ([data-term] with no data-tooltip sibling,
+     swaps textContent instead). One dictionary, two consumers, keyed by the
+     original PT-BR term so existing markup never needed new IDs. */
+  var TERMS = {
+    pt: { 'Sinistralidade':'Sinistralidade', 'Rede credenciada':'Rede credenciada', 'Regulação ANS':'Regulação ANS',
+      'Value at Risk':'Value at Risk', 'Reservas técnicas':'Reservas técnicas', 'Estresse atuarial':'Estresse atuarial',
+      'Precificação':'Precificação', 'Provisões técnicas':'Provisões técnicas', 'Solvência':'Solvência',
+      'Segmentação de carteira':'Segmentação de carteira', 'Sinistro incorrido':'Sinistro incorrido', 'Renovação de contrato':'Renovação de contrato',
+      'Regressão':'Regressão', 'Séries temporais':'Séries temporais', 'Distribuições de perda':'Distribuições de perda',
+      'Data quality':'Data quality', 'Dashboards':'Dashboards', 'Indicadores-chave':'Indicadores-chave',
+      'Indicador mais recente':'Indicador mais recente', 'Risco calculado':'Risco calculado', 'Parecer atuarial':'Parecer atuarial',
+      'Curva ajustada':'Curva ajustada', 'Leitura consolidada':'Leitura consolidada' },
+    en: { 'Sinistralidade':'Loss ratio', 'Rede credenciada':'Accredited network', 'Regulação ANS':'ANS regulation',
+      'Value at Risk':'Value at Risk', 'Reservas técnicas':'Technical reserves', 'Estresse atuarial':'Actuarial stress',
+      'Precificação':'Pricing', 'Provisões técnicas':'Technical provisions', 'Solvência':'Solvency',
+      'Segmentação de carteira':'Portfolio segmentation', 'Sinistro incorrido':'Incurred claims', 'Renovação de contrato':'Contract renewal',
+      'Regressão':'Regression', 'Séries temporais':'Time series', 'Distribuições de perda':'Loss distributions',
+      'Data quality':'Data quality', 'Dashboards':'Dashboards', 'Indicadores-chave':'Key indicators',
+      'Indicador mais recente':'Most recent indicator', 'Risco calculado':'Calculated risk', 'Parecer atuarial':'Actuarial opinion',
+      'Curva ajustada':'Fitted curve', 'Leitura consolidada':'Consolidated reading' },
+    es: { 'Sinistralidade':'Siniestralidad', 'Rede credenciada':'Red acreditada', 'Regulação ANS':'Regulación ANS',
+      'Value at Risk':'Valor en Riesgo (VaR)', 'Reservas técnicas':'Reservas técnicas', 'Estresse atuarial':'Estrés actuarial',
+      'Precificação':'Tarificación', 'Provisões técnicas':'Provisiones técnicas', 'Solvência':'Solvencia',
+      'Segmentação de carteira':'Segmentación de cartera', 'Sinistro incorrido':'Siniestro incurrido', 'Renovação de contrato':'Renovación de contrato',
+      'Regressão':'Regresión', 'Séries temporais':'Series temporales', 'Distribuições de perda':'Distribuciones de pérdida',
+      'Data quality':'Calidad de datos', 'Dashboards':'Paneles de control', 'Indicadores-chave':'Indicadores clave',
+      'Indicador mais recente':'Indicador más reciente', 'Risco calculado':'Riesgo calculado', 'Parecer atuarial':'Dictamen actuarial',
+      'Curva ajustada':'Curva ajustada', 'Leitura consolidada':'Lectura consolidada' }
+  };
+
+  var LANG_TAGS = { pt: 'pt-BR', en: 'en', es: 'es' };
+  var SUPPORTED_LANGS = ['pt', 'en', 'es'];
+
+  /* Portuguese is the site's institutional default (Algtrix is a Brazilian
+     consultancy) — only an explicit prior choice, saved by the visitor
+     themselves via the language switcher, overrides it. Deliberately not
+     auto-switching off navigator.language/browser locale: a Brazilian client
+     whose OS happens to be set to English shouldn't silently land on an
+     English homepage on their very first visit. */
+  function detectInitialLang(){
+    try{
+      var stored = window.localStorage && window.localStorage.getItem('algtrix-lang');
+      if(stored && SUPPORTED_LANGS.indexOf(stored) !== -1) return stored;
+    }catch(e){}
+    return 'pt';
+  }
+
+  function t(key, lang){
+    var dict = I18N[lang] || I18N.pt;
+    var parts = key.split('.');
+    var node = dict;
+    for(var i = 0; i < parts.length; i++){
+      if(node == null) break;
+      node = node[parts[i]];
+    }
+    if(node == null){
+      // fall back to Portuguese rather than showing a raw key
+      node = I18N.pt;
+      for(var j = 0; j < parts.length; j++){
+        if(node == null) break;
+        node = node[parts[j]];
+      }
+    }
+    return (node == null) ? key : node;
+  }
+
+  var currentLang = detectInitialLang();
+
+  // Reassigned once each feature initializes further down; safe no-ops until then.
+  var rebuildMagneticWord = function(){};
+  var rebuildMagneticHeadings = function(){};
+  // Split in two (unlike the magnetic rebuilds above) because GSAP SplitText's
+  // .revert() restores the exact text it had cached at construction time —
+  // calling it AFTER translating would silently overwrite the new text back
+  // to whatever phrase was showing when the split was first built. Teardown
+  // has to run first, then translate, then rebuild fresh from the new text.
+  var teardownManifesto = function(){};
+  var buildManifestoAll = function(){};
+
+  function applyStaticText(lang){
+    document.querySelectorAll('[data-i18n]').forEach(function(el){
+      el.textContent = t(el.getAttribute('data-i18n'), lang);
+    });
+    document.querySelectorAll('[data-i18n-html]').forEach(function(el){
+      el.innerHTML = t(el.getAttribute('data-i18n-html'), lang);
+    });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(function(el){
+      el.setAttribute('placeholder', t(el.getAttribute('data-i18n-placeholder'), lang));
+    });
+    document.querySelectorAll('[data-i18n-aria-label]').forEach(function(el){
+      el.setAttribute('aria-label', t(el.getAttribute('data-i18n-aria-label'), lang));
+    });
+    document.querySelectorAll('[data-term]').forEach(function(el){
+      var key = el.getAttribute('data-term');
+      var dict = TERMS[lang] || TERMS.pt;
+      var val = dict[key] || key;
+      if(el.hasAttribute('data-tooltip')){ el.setAttribute('data-tooltip', val); }
+      else { el.textContent = val; }
+    });
+    var htmlRoot = document.getElementById('html-root');
+    if(htmlRoot) htmlRoot.setAttribute('lang', LANG_TAGS[lang] || 'pt-BR');
+    var titleEl = document.getElementById('doc-title');
+    if(titleEl){ titleEl.textContent = t('meta.title', lang); document.title = t('meta.title', lang); }
+    var descEl = document.getElementById('doc-description');
+    if(descEl) descEl.setAttribute('content', t('meta.description', lang));
+    document.querySelectorAll('.lang-btn').forEach(function(btn){
+      var isActive = btn.getAttribute('data-lang') === lang;
+      btn.classList.toggle('is-active', isActive);
+      btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+    });
+  }
+
+  function applyLanguage(lang){
+    if(SUPPORTED_LANGS.indexOf(lang) === -1) lang = 'pt';
+    currentLang = lang;
+    try{ window.localStorage && window.localStorage.setItem('algtrix-lang', lang); }catch(e){}
+    // Tear down the manifesto's SplitText instances BEFORE translating: revert()
+    // restores its own cached original text, which would otherwise stomp the
+    // translation applied a moment later.
+    teardownManifesto();
+    applyStaticText(lang);
+    // Elements that decompose plain text into per-character spans for the
+    // magnetic hover effect need to be rebuilt from the just-updated text —
+    // applyStaticText's textContent assignment above already collapsed any
+    // previous spans back to a plain text node, so these read fresh source text.
+    rebuildMagneticWord();
+    rebuildMagneticHeadings();
+    // Now rebuild the manifesto's SplitText from the freshly translated
+    // .manifesto-text content.
+    buildManifestoAll();
+  }
+
+  // First paint: translate before any later IIFE reads DOM text (magnetic
+  // split, manifesto build, etc. all run after this point in the script).
+  applyStaticText(currentLang);
+
+  /* ---------------- Language switcher (desktop header + mobile drawer) ---------------- */
+  (function initLangSwitch(){
+    document.querySelectorAll('.lang-switch .lang-btn').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var lang = btn.getAttribute('data-lang');
+        if(lang === currentLang) return;
+        applyLanguage(lang);
+      });
+    });
+  })();
+
+
+  /* Reveal the page once. Fires early and unconditionally so a slow/blocked CDN
+     script never leaves the page stuck invisible. */
+  requestAnimationFrame(function(){ document.body.classList.add('is-ready'); });
+
+  /* ---------------- Mobile nav ---------------- */
+  var toggle = document.getElementById('nav-toggle');
+  var nav = document.getElementById('main-nav');
+  var scrim = document.getElementById('nav-scrim');
+  function closeNav(){
+    nav.classList.remove('is-open');
+    scrim.classList.remove('is-open');
+    toggle.setAttribute('aria-expanded','false');
+  }
+  function openNav(){
+    nav.classList.add('is-open');
+    scrim.classList.add('is-open');
+    toggle.setAttribute('aria-expanded','true');
+  }
+  toggle.addEventListener('click', function(){
+    nav.classList.contains('is-open') ? closeNav() : openNav();
+  });
+  scrim.addEventListener('click', closeNav);
+  nav.querySelectorAll('a').forEach(function(a){ a.addEventListener('click', closeNav); });
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeNav(); });
+
+  /* ---------------- Header scroll state ---------------- */
+  var header = document.getElementById('site-header');
+  function onScrollHeader(){
+    if(window.scrollY > 40){ header.classList.add('is-scrolled'); }
+    else{ header.classList.remove('is-scrolled'); }
+  }
+  window.addEventListener('scroll', onScrollHeader, {passive:true});
+  onScrollHeader();
+
+  /* ---------------- Active nav link on scroll ---------------- */
+  var navLinks = Array.prototype.slice.call(nav.querySelectorAll('a'));
+  var sections = navLinks.map(function(a){
+    var id = a.getAttribute('href').replace('#','');
+    return document.getElementById(id);
+  }).filter(Boolean);
+
+  function setActiveLink(){
+    var pos = window.scrollY + window.innerHeight * 0.4;
+    var current = sections[0];
+    sections.forEach(function(sec){ if(sec.offsetTop <= pos) current = sec; });
+    navLinks.forEach(function(a){
+      a.classList.toggle('is-active', a.getAttribute('href') === '#' + current.id);
+    });
+  }
+  window.addEventListener('scroll', setActiveLink, {passive:true});
+  setActiveLink();
+
+  /* ---------------- Smooth anchor scrolling (keeps header offset) ---------------- */
+  document.querySelectorAll('a[href^="#"]').forEach(function(a){
+    a.addEventListener('click', function(e){
+      var id = a.getAttribute('href');
+      if(id.length < 2) return;
+      var target = document.querySelector(id);
+      if(!target) return;
+      e.preventDefault();
+      var top = target.getBoundingClientRect().top + window.scrollY - 76;
+      if(window.__lenis){ window.__lenis.scrollTo(top, {duration: reduceMotion ? 0 : 1.2}); }
+      else{ window.scrollTo({top: top, behavior: reduceMotion ? 'auto' : 'smooth'}); }
+      target.setAttribute('tabindex','-1');
+      target.focus({preventScroll:true});
+    });
+  });
+
+  /* ---------------- Lenis smooth scroll ---------------- */
+  if(!reduceMotion && window.Lenis){
+    var lenis = new Lenis({
+      duration: 1.05,
+      easing: function(t){ return Math.min(1, 1.001 - Math.pow(2, -10 * t)); },
+      smoothWheel: true
+    });
+    window.__lenis = lenis;
+    function raf(time){ lenis.raf(time); requestAnimationFrame(raf); }
+    requestAnimationFrame(raf);
+    if(window.gsap && window.ScrollTrigger){
+      lenis.on('scroll', ScrollTrigger.update);
+      gsap.ticker.add(function(time){ lenis.raf(time * 1000); });
+      gsap.ticker.lagSmoothing(0);
+    }
+  }
+
+  /* ---------------- GSAP ScrollTrigger reveals + parallax ---------------- */
+  if(window.gsap && window.ScrollTrigger && !reduceMotion){
+    gsap.registerPlugin(ScrollTrigger);
+    var EASE_OUT = 'cubic-bezier(0.23, 1, 0.32, 1)';
+
+    /* Hero: above-the-fold, plays once on load as a deliberate staggered
+       sequence rather than generic scroll-reveal (first impression = highest
+       craft moment). ~90ms between elements per the stagger guidance. */
+    var heroEls = document.querySelectorAll('.hero [data-reveal]');
+    if(heroEls.length){
+      gsap.to(heroEls, {
+        opacity:1, y:0, scale:1,
+        duration:.9, ease:EASE_OUT,
+        stagger:.09,
+        delay:.15
+      });
+    }
+
+    /* Recap grid: each card staggers in individually (30–80ms cadence).
+       Tweens the --ty/--ts/--ry custom properties (not x/y/scale directly) so the
+       reveal transform and the pointer-tilt transform share one formula instead of
+       GSAP's inline transform clobbering the tilt-3d CSS after the reveal finishes. */
+    var recapCards = document.querySelectorAll('.recap-card');
+    if(recapCards.length){
+      gsap.to(recapCards, {
+        opacity:1, '--ty':'0px', '--ts':1, '--ry':'0deg',
+        duration:.7, ease:EASE_OUT,
+        stagger:.06,
+        scrollTrigger:{
+          trigger:'.recap-grid',
+          start:'top 85%',
+          toggleActions:'play none none reverse'
+        }
+      });
+    }
+
+    /* Chapter figures: same custom-property reveal as the recap cards, so their
+       pointer-tilt keeps working after the scroll-in (a small "3D transition" —
+       the figure settles in from a slight rotateY, then tilts live on hover). */
+    var tiltReveals = Array.prototype.filter.call(
+      document.querySelectorAll('.tilt-3d[data-reveal]'),
+      function(el){ return !el.closest('.hero') && !el.classList.contains('recap-card'); }
+    );
+    tiltReveals.forEach(function(el){
+      gsap.to(el, {
+        opacity:1, '--ty':'0px', '--ts':1, '--ry':'0deg',
+        duration:.9, ease:EASE_OUT,
+        scrollTrigger:{
+          trigger: el,
+          start:'top 88%',
+          toggleActions:'play none none reverse'
+        }
+      });
+    });
+
+    /* Everything else: standard single-element scroll reveal
+       (plain querySelectorAll + JS filter — avoids relying on complex :not() selector support) */
+    var plainReveals = Array.prototype.filter.call(
+      document.querySelectorAll('[data-reveal]'),
+      function(el){ return !el.closest('.hero') && !el.classList.contains('recap-card') && !el.classList.contains('tilt-3d'); }
+    );
+    plainReveals.forEach(function(el){
+      gsap.to(el, {
+        opacity:1, y:0, scale:1,
+        duration:.85, ease:EASE_OUT,
+        scrollTrigger:{
+          trigger: el,
+          start:'top 88%',
+          toggleActions:'play none none reverse'
+        }
+      });
+    });
+
+    /* subtle depth parallax on decorative orbs — transform-only (GPU) */
+    gsap.utils.toArray('.glow-orb').forEach(function(orb){
+      gsap.to(orb, {
+        yPercent: gsap.utils.random(-18, 18),
+        ease:'none',
+        scrollTrigger:{
+          trigger: orb.closest('.section, .hero, .chapter'),
+          start:'top bottom',
+          end:'bottom top',
+          scrub:1
+        }
+      });
+    });
+
+    /* connective thread grows with page progress */
+    var threadLine = document.getElementById('thread-line');
+    if(threadLine){
+      gsap.set(threadLine, { attr:{ y2: 0 } });
+      ScrollTrigger.create({
+        start:0,
+        end: 'max',
+        onUpdate: function(self){
+          threadLine.setAttribute('y2', (self.progress * 100) + '%');
+        }
+      });
+    }
+
+    ScrollTrigger.refresh();
+  } else {
+    /* Reduced motion: gentle opacity-only fade via IntersectionObserver —
+       not an instant snap. Movement/scale is stripped by CSS (.reduced-motion). */
+    var revealEls = document.querySelectorAll('[data-reveal]');
+    if('IntersectionObserver' in window){
+      var io = new IntersectionObserver(function(entries){
+        entries.forEach(function(entry){
+          if(entry.isIntersecting){
+            entry.target.classList.add('is-visible');
+            io.unobserve(entry.target);
+          }
+        });
+      }, { threshold:.15, rootMargin:'0px 0px -10% 0px' });
+      revealEls.forEach(function(el){ io.observe(el); });
+    } else {
+      revealEls.forEach(function(el){ el.classList.add('is-visible'); });
+    }
+  }
+
+  /* ---------------- Living Field: canvas particle network ----------------
+     This is our "video background" — fully generated in code so there is no
+     external media file to host, license, or fail to load. Each instance is
+     seeded with a target "order" (0 = drifting/chaotic, 1 = settled into a
+     grid), so as you move through the page the field visibly organizes —
+     the same "dados brutos → insights → resultados" arc, told as motion. */
+  function LivingField(canvas){
+    this.canvas = canvas;
+    this.ctx = canvas.getContext('2d');
+    this.order = parseFloat(canvas.dataset.order || '0.2');
+    this.densityMul = parseFloat(canvas.dataset.density || '1');
+    this.dpr = Math.min(window.devicePixelRatio || 1, 2);
+    this.colors = ['#41b7c4', '#7ed4dd', '#7862ad', '#b7e9ee'];
+    this.running = false;
+    this.rafId = null;
+    this.mouseX = -9999;
+    this.mouseY = -9999;
+    this.mouseActive = false;
+    this.resize();
+    this.seed();
+  }
+  LivingField.prototype.resize = function(){
+    var rect = this.canvas.getBoundingClientRect();
+    this.w = Math.max(rect.width, 1);
+    this.h = Math.max(rect.height, 1);
+    this.canvas.width = Math.round(this.w * this.dpr);
+    this.canvas.height = Math.round(this.h * this.dpr);
+    this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+  };
+  LivingField.prototype.seed = function(){
+    var area = this.w * this.h;
+    var target = Math.max(16, Math.min(85, Math.round((area / 13000) * this.densityMul)));
+    var cols = Math.max(3, Math.round(Math.sqrt(target * (this.w / this.h))));
+    var rows = Math.max(3, Math.round(target / cols));
+    this.particles = [];
+    var i = 0;
+    for(var r = 0; r < rows; r++){
+      for(var c = 0; c < cols; c++){
+        var gx = (c + 0.5) / cols * this.w;
+        var gy = (r + 0.5) / rows * this.h;
+        this.particles.push({
+          x: Math.random() * this.w, y: Math.random() * this.h,
+          vx: (Math.random() - 0.5) * 0.18, vy: (Math.random() - 0.5) * 0.18,
+          gx: gx, gy: gy,
+          r: Math.random() * 1.3 + 0.9,
+          color: this.colors[i % this.colors.length]
+        });
+        i++;
+      }
+    }
+  };
+  LivingField.prototype.step = function(){
+    var ctx = this.ctx, particles = this.particles, order = this.order, p, i, j;
+    ctx.clearRect(0, 0, this.w, this.h);
+    /* interactive: the data field reacts to the cursor — particles within reach
+       are gently pushed aside, so the "raw data" visibly responds to touch,
+       reinforcing the brand's data/statistics identity without adding any new
+       UI chrome. Disabled under reduced motion and on touch (set at setup). */
+    var mx = this.mouseX, my = this.mouseY, active = this.mouseActive;
+    var reach = Math.min(this.w, this.h) * 0.22 + 40;
+    for(i = 0; i < particles.length; i++){
+      p = particles[i];
+      p.x += p.vx; p.y += p.vy;
+      if(p.x < 0 || p.x > this.w) p.vx *= -1;
+      if(p.y < 0 || p.y > this.h) p.vy *= -1;
+      p.x += (p.gx - p.x) * order * 0.006;
+      p.y += (p.gy - p.y) * order * 0.006;
+      if(active){
+        var mdx = p.x - mx, mdy = p.y - my;
+        var mdist = Math.sqrt(mdx * mdx + mdy * mdy);
+        if(mdist < reach && mdist > 0.01){
+          var push = (reach - mdist) / reach * 2.6;
+          p.x += (mdx / mdist) * push;
+          p.y += (mdy / mdist) * push;
+        }
+      }
+    }
+    var maxDist = Math.min(this.w, this.h) * 0.15 + 36;
+    ctx.lineWidth = 1;
+    for(i = 0; i < particles.length; i++){
+      for(j = i + 1; j < particles.length; j++){
+        var dx = particles[i].x - particles[j].x;
+        var dy = particles[i].y - particles[j].y;
+        var dist = Math.sqrt(dx * dx + dy * dy);
+        if(dist < maxDist){
+          ctx.strokeStyle = 'rgba(199,191,224,' + ((1 - dist / maxDist) * 0.16).toFixed(3) + ')';
+          ctx.beginPath();
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.stroke();
+        }
+      }
+    }
+    for(i = 0; i < particles.length; i++){
+      p = particles[i];
+      ctx.beginPath();
+      ctx.fillStyle = p.color;
+      ctx.globalAlpha = 0.85;
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+  };
+  LivingField.prototype.start = function(){
+    if(this.running) return;
+    this.running = true;
+    var self = this;
+    (function raf(){
+      if(!self.running) return;
+      self.step();
+      self.rafId = requestAnimationFrame(raf);
+    })();
+  };
+  LivingField.prototype.stop = function(){
+    this.running = false;
+    if(this.rafId) cancelAnimationFrame(this.rafId);
+  };
+
+  (function initLivingFields(){
+    var canvases = document.querySelectorAll('canvas.living-field');
+    if(!canvases.length) return;
+    var fields = [];
+    /* canvas -> field lookup, shared with initManifesto below so it can scrub
+       the manifesto field's "order" from scroll progress without duplicating
+       the particle-system setup */
+    window.__fieldRegistry = new Map();
+    canvases.forEach(function(canvas){
+      var field = new LivingField(canvas);
+      fields.push(field);
+      window.__fieldRegistry.set(canvas, field);
+      field.step(); // paint one frame immediately, even if motion is fully off
+    });
+
+    if(reduceMotion) return; // static single frame only — no rAF loop, no CPU cost
+
+    /* pointer interactivity: only for hover-capable, fine-pointer devices —
+       touch scrolling should never fight with a "push the particles" effect */
+    if(window.matchMedia('(hover: hover) and (pointer: fine)').matches){
+      canvases.forEach(function(canvas, idx){
+        var field = fields[idx];
+        canvas.addEventListener('pointermove', function(e){
+          var r = canvas.getBoundingClientRect();
+          field.mouseX = e.clientX - r.left;
+          field.mouseY = e.clientY - r.top;
+          field.mouseActive = true;
+        });
+        canvas.addEventListener('pointerleave', function(){ field.mouseActive = false; });
+      });
+    }
+
+    if('IntersectionObserver' in window){
+      var io = new IntersectionObserver(function(entries){
+        entries.forEach(function(entry){
+          var field = fields[Array.prototype.indexOf.call(canvases, entry.target)];
+          if(!field) return;
+          entry.isIntersecting ? field.start() : field.stop();
+        });
+      }, { rootMargin: '200px 0px' });
+      canvases.forEach(function(c){ io.observe(c); });
+    } else {
+      fields.forEach(function(f){ f.start(); });
+    }
+
+    var resizeTimer;
+    window.addEventListener('resize', function(){
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function(){
+        fields.forEach(function(f){ f.resize(); f.seed(); });
+      }, 200);
+    }, { passive: true });
+  })();
+
+  /* ---------------- Chart draw-in: animate the redesigned chapter SVGs ---------------- */
+  (function initChartDrawIn(){
+    var draws = document.querySelectorAll('.chart-svg .draw');
+    if(draws.length){
+      if(reduceMotion || !window.gsap || !window.ScrollTrigger){
+        draws.forEach(function(p){ p.style.strokeDashoffset = '0'; });
+      } else {
+        draws.forEach(function(p){
+          var figure = p.closest('.chapter-figure');
+          gsap.to(p, {
+            strokeDashoffset: 0,
+            duration: 1.3,
+            ease: 'power2.out',
+            scrollTrigger:{ trigger: figure || p, start:'top 82%', toggleActions:'play none none none' }
+          });
+        });
+      }
+    }
+
+    /* bar chart (Avaliação de Carteira): grow each bar up from the baseline,
+       staggered — a single tween call over all bars so GSAP's stagger applies */
+    var barGroups = document.querySelectorAll('.chart-svg .bars');
+    barGroups.forEach(function(group){
+      if(reduceMotion || !window.gsap || !window.ScrollTrigger) return; // final state already in markup
+      var bars = group.querySelectorAll('rect');
+      var baseline = 180;
+      gsap.set(bars, { attr:{ height:0, y:baseline } });
+      gsap.to(bars, {
+        attr:{
+          height:function(i, target){ return parseFloat(target.dataset.h); },
+          y:function(i, target){ return baseline - parseFloat(target.dataset.h); }
+        },
+        duration:.9, ease:'power2.out',
+        stagger:.08,
+        scrollTrigger:{ trigger: group.closest('.chapter-figure'), start:'top 82%', toggleActions:'play none none none' }
+      });
+    });
+  })();
+
+  /* ---------------- Interactive chart marks: hover OR drag/tap a bar/point/segment ----------------
+     Each mark carrying data-tooltip lifts, glows, dims its siblings, and shows the
+     real term already used in that chapter's copy (term-chips / body text) — never
+     an invented number. Two input modes, chosen once at load:
+       - hover-capable fine pointer (mouse/trackpad): pointerenter/pointerleave, as before —
+         gliding the mouse across the chart lights up each mark it passes over.
+       - touch/coarse pointer: the same "glide across and light up each mark" gesture,
+         but with a finger — press on (or near) a mark and drag to scrub across the
+         others, exactly like the desktop hover-glide. A plain tap (no drag) still
+         toggles a single mark on/off. Nothing here ever calls preventDefault, and
+         .chart-svg is touch-action:pan-y (see CSS), so a mostly-vertical drag is
+         always left for the browser to scroll the page normally — this is the fix
+         for "swiping doesn't behave like it does on desktop" (point 4): the touch
+         gesture was previously discrete tap-only, with no drag/scrub equivalent at
+         all, which is what read as "different behavior than the computer".
+     Covers both the big per-chapter charts and the small Panorama card graphs, since
+     both use the same [data-tooltip]/.chart-svg markup. Charts stay fully legible
+     without any of this (final state is already drawn in — see initChartDrawIn). */
+  (function initChartTooltips(){
+    var canHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    document.querySelectorAll('.chapter-figure, .recap-card').forEach(function(figure){
+      var svg = figure.querySelector('.chart-svg');
+      if(!svg) return;
+      var marks = Array.prototype.slice.call(svg.querySelectorAll('[data-tooltip]'));
+      if(!marks.length) return;
+      var tip = document.createElement('div');
+      tip.className = 'chart-tip';
+      tip.setAttribute('aria-hidden', 'true');
+      figure.appendChild(tip);
+
+      function activate(mark){
+        svg.classList.add('is-hovering');
+        marks.forEach(function(m){ m.classList.toggle('is-active', m === mark); });
+        var r = mark.getBoundingClientRect();
+        var fr = figure.getBoundingClientRect();
+        tip.textContent = mark.getAttribute('data-tooltip');
+        tip.style.left = (r.left + r.width / 2 - fr.left) + 'px';
+        tip.style.top = (r.top - fr.top) + 'px';
+        tip.classList.add('is-visible');
+      }
+      function deactivate(){
+        svg.classList.remove('is-hovering');
+        marks.forEach(function(m){ m.classList.remove('is-active'); });
+        tip.classList.remove('is-visible');
+      }
+
+      if(canHover){
+        marks.forEach(function(mark){
+          mark.addEventListener('pointerenter', function(){ activate(mark); });
+          mark.addEventListener('pointerleave', deactivate);
+        });
+        figure.addEventListener('pointerleave', deactivate);
+      } else {
+        /* touch: press near a mark to activate it (toggling off if it's already
+           active), then — only once a press has actually started on/near a mark —
+           dragging the finger scrubs to whichever mark is nearest, same feel as a
+           mouse gliding across. A generous 46px catch radius makes this forgiving
+           on small marks without needing to enlarge them visually. */
+        var activeMark = null;
+        var dragging = false;
+        function nearestMark(x, y){
+          var best = null, bestDist = Infinity;
+          marks.forEach(function(m){
+            var r = m.getBoundingClientRect();
+            var cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+            var d = Math.hypot(x - cx, y - cy);
+            if(d < bestDist){ bestDist = d; best = m; }
+          });
+          return bestDist < 46 ? best : null;
+        }
+        svg.addEventListener('pointerdown', function(e){
+          if(e.pointerType === 'mouse') return;
+          var m = nearestMark(e.clientX, e.clientY);
+          if(!m) return;
+          dragging = true;
+          if(activeMark === m){ deactivate(); activeMark = null; }
+          else { activate(m); activeMark = m; }
+        });
+        svg.addEventListener('pointermove', function(e){
+          if(!dragging || e.pointerType === 'mouse') return;
+          var m = nearestMark(e.clientX, e.clientY);
+          if(m && m !== activeMark){ activate(m); activeMark = m; }
+        });
+        svg.addEventListener('pointerup', function(){ dragging = false; });
+        svg.addEventListener('pointercancel', function(){ dragging = false; });
+        document.addEventListener('click', function(e){
+          if(activeMark && !figure.contains(e.target)){ deactivate(); activeMark = null; }
+        });
+      }
+    });
+  })();
+
+  /* ---------------- 3D pointer-tilt on figures/cards ---------------- */
+  /* Decorative only (no functional data depends on it), so direct mouse-tracking is
+     appropriate — snappy while moving, eases back to neutral on leave (asymmetric
+     timing: fast response, smooth settle). Gated to fine pointers + full motion. */
+  (function initTilt(){
+    if(reduceMotion) return;
+    if(!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+    var MAX_DEG = 7;
+    document.querySelectorAll('.tilt-3d').forEach(function(el){
+      el.addEventListener('pointermove', function(e){
+        var r = el.getBoundingClientRect();
+        var px = (e.clientX - r.left) / r.width;   // 0..1
+        var py = (e.clientY - r.top) / r.height;   // 0..1
+        var ry = (px - 0.5) * (MAX_DEG * 2);
+        var rx = (0.5 - py) * (MAX_DEG * 2);
+        el.classList.add('is-tilting');
+        el.style.setProperty('--rx', rx.toFixed(2) + 'deg');
+        el.style.setProperty('--ry', ry.toFixed(2) + 'deg');
+      });
+      el.addEventListener('pointerleave', function(){
+        el.classList.remove('is-tilting');
+        el.style.setProperty('--rx', '0deg');
+        el.style.setProperty('--ry', '0deg');
+      });
+    });
+
+    /* icon <-> chart echo: hovering a chapter's icon badge nudges its chart
+       (a soft glow lift), so the two feel like one connected system rather
+       than two unrelated decorations sharing a section */
+    document.querySelectorAll('.chapter').forEach(function(chapter){
+      var icon = chapter.querySelector('.chapter-copy .icon-badge.tilt-3d');
+      var figure = chapter.querySelector('.chapter-figure');
+      if(!icon || !figure) return;
+      icon.addEventListener('pointerenter', function(){ figure.classList.add('is-echoing'); });
+      icon.addEventListener('pointerleave', function(){ figure.classList.remove('is-echoing'); });
+    });
+  })();
+
+  /* ---------------- Magnetic letter zoom — shared engine ----------------
+     Letters nearest the cursor magnify like a loupe passing over fine print.
+     Used on the hero word AND on every major headline across the site (see
+     initMagneticHeadings below), so the interaction reads as one consistent
+     idea rather than a one-off hero gimmick. One pointermove/pointerleave
+     pair per container, rAF-throttled, gated to hover-capable fine pointers
+     and off entirely under reduced motion.
+     chars is a getter function (not a plain array) so the persistent
+     pointermove/pointerleave listeners attached once here keep reading
+     whichever span set is current after a language-switch rebuild — no
+     listener re-attachment needed for the hero word case, where the
+     container element itself never gets swapped out. */
+  function attachMagnetic(container, getChars, radius, maxScale){
+    var raf = null, lastX = null, lastY = null;
+    function apply(){
+      raf = null;
+      getChars().forEach(function(el){
+        var r = el.getBoundingClientRect();
+        var cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+        var dist = Math.hypot(lastX - cx, lastY - cy);
+        var t = Math.max(0, 1 - dist / radius);
+        var scale = 1 + t * (maxScale - 1);
+        el.style.transform = t > 0.02 ? 'scale(' + scale.toFixed(3) + ') translateY(' + (-t * 10).toFixed(2) + 'px)' : '';
+      });
+    }
+    container.addEventListener('pointermove', function(e){
+      lastX = e.clientX; lastY = e.clientY;
+      if(raf === null) raf = requestAnimationFrame(apply);
+    });
+    container.addEventListener('pointerleave', function(){
+      getChars().forEach(function(el){ el.style.transform = ''; });
+    });
+  }
+
+  /* Hero: "CONSULTORIA" splits into one span per letter — a single word, no
+     internal spaces, so a flat char split is enough. The real word stays in
+     the DOM as an .sr-only sibling, so screen readers and no-JS visitors get
+     plain, intact text either way. Factored into rebuild() so a language
+     switch (which resets word.textContent back to plain text via
+     applyStaticText) can re-split from the freshly translated word without
+     re-attaching listeners — attachMagnetic reads `letters` through a
+     closure, so reassigning it here is all a rebuild needs to do. */
+  (function initMagneticWord(){
+    if(reduceMotion) return;
+    if(!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+    var word = document.querySelector('.magnetic-word');
+    if(!word) return;
+    var letters = [];
+    function rebuild(){
+      var text = word.textContent;
+      word.textContent = '';
+      letters = text.split('').map(function(ch){
+        var span = document.createElement('span');
+        span.className = 'ml';
+        span.textContent = ch === ' ' ? ' ' : ch;
+        word.appendChild(span);
+        return span;
+      });
+    }
+    rebuild();
+    attachMagnetic(word, function(){ return letters; }, 110, 1.55);
+    rebuildMagneticWord = rebuild;
+  })();
+
+  /* Every other major headline on the site: chapter titles, the Panorama,
+     Parceiros and Contato headings, and the six solution-card titles — marked
+     in the markup with [data-magnetic]. These are full sentences, so the
+     split is two levels (word, then char): each word stays an atomic
+     inline-block, so long headlines still wrap at word boundaries exactly as
+     before — only individual letters magnify. Slightly smaller radius/scale
+     than the hero since this repeats many times across the page — restrained
+     on purpose so it reads as texture, not a gimmick repeated ad nauseam.
+     Each heading's rebuild() rebuilds AND re-attaches its own magnetic
+     listener every call (unlike the hero word, `visual` here is itself
+     replaced on every rebuild, so the listener has to move with it — the old
+     node and its listener are simply discarded together via el.innerHTML=''
+     at the top of the next rebuild). */
+  (function initMagneticHeadings(){
+    if(reduceMotion) return;
+    if(!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+    var rebuilders = [];
+    document.querySelectorAll('[data-magnetic]').forEach(function(el){
+      var chars = [];
+      function rebuild(){
+        var text = el.textContent;
+        el.innerHTML = '';
+        var sr = document.createElement('span');
+        sr.className = 'sr-only';
+        sr.textContent = text;
+        el.appendChild(sr);
+
+        var visual = document.createElement('span');
+        visual.className = 'magnetic-heading';
+        visual.setAttribute('aria-hidden', 'true');
+        chars = [];
+        var words = text.split(' ');
+        words.forEach(function(word, wi){
+          var wordSpan = document.createElement('span');
+          wordSpan.className = 'word';
+          word.split('').forEach(function(ch){
+            var charSpan = document.createElement('span');
+            charSpan.className = 'char';
+            charSpan.textContent = ch;
+            wordSpan.appendChild(charSpan);
+            chars.push(charSpan);
+          });
+          visual.appendChild(wordSpan);
+          if(wi < words.length - 1){ visual.appendChild(document.createTextNode(' ')); }
+        });
+        el.appendChild(visual);
+        attachMagnetic(visual, function(){ return chars; }, 90, 1.35);
+      }
+      rebuild();
+      rebuilders.push(rebuild);
+    });
+    rebuildMagneticHeadings = function(){ rebuilders.forEach(function(fn){ fn(); }); };
+  })();
+
+  /* ---------------- Manifesto: pinned, scroll-scrubbed phrase sequence ----------------
+     Progressive enhancement only: the .manifesto-ready class (and the pin/scrub it
+     unlocks via CSS) is added here, after SplitText successfully processes every
+     phrase — never in the static markup. Without JS, without SplitText, or under
+     reduced motion, the section is just a normal, fully-readable, non-pinned block. */
+  (function initManifesto(){
+    if(reduceMotion || !window.gsap || !window.ScrollTrigger || !window.SplitText) return;
+    var containers = document.querySelectorAll('.container-titulos');
+    if(!containers.length) return;
+    gsap.registerPlugin(SplitText);
+
+    var cleanups = [];
+    function build(container){
+      var lines = Array.prototype.slice.call(container.querySelectorAll('.manifesto-text'));
+      if(lines.length < 2) return;
+      container.classList.add('manifesto-ready');
+      var splits = [];
+      var master = gsap.timeline({
+        scrollTrigger:{ trigger: container, start:'top top', end:'bottom bottom', scrub:true }
+      });
+      /* short appear/leave with an explicit HOLD plateau at full opacity in between —
+         guarantees each phrase is completely, legibly visible for a real stretch of
+         the (now much shorter) scroll range, not just a passing instant mid-crossfade */
+      /* HOLD_FIRST is longer than the rest: the visitor arrives here carrying
+         scroll momentum from the Hero (Lenis inertia + a fast flick often still
+         decelerating), so without extra room "Dados brutos" was consistently
+         read as flashing by faster than the phrases after it, even though its
+         gsap-duration was mathematically equal — momentum eats into its share
+         disproportionately since it's first. OVERLAP is wider than before so
+         the outgoing phrase stays visibly present (partial opacity) while the
+         next one is already fading in, a real cross-dissolve rather than a
+         quick baton-pass — closer to "a frase anterior parcialmente visível". */
+      var APPEAR = 0.55, HOLD_FIRST = 1.15, HOLD = 0.7, LEAVE = 0.55, OVERLAP = 0.35;
+      var phraseStart = [];
+      lines.forEach(function(line, index){
+        var split = new SplitText(line, { type:'words,chars', wordsClass:'word', charsClass:'char' });
+        splits.push(split);
+        gsap.set(line, { visibility:'visible' });
+        var tlFrase = gsap.timeline();
+        var hold = index === 0 ? HOLD_FIRST : HOLD;
+        tlFrase.from(split.chars, { autoAlpha:0, stagger:{ amount:APPEAR, from:'start' }, duration:APPEAR });
+        if(index < lines.length - 1){
+          tlFrase.to(split.chars, { autoAlpha:0, stagger:{ amount:LEAVE, from:'start' }, duration:LEAVE }, '+=' + hold);
+        }
+        master.add(tlFrase, index === 0 ? undefined : '-=' + OVERLAP);
+        phraseStart[index] = tlFrase.startTime();
+      });
+      /* the graphic changes shape at each stage, not just density: a target/
+         indicator reading fades in for "Decisão" (index 3), replaced by an
+         ascending result graph for "Resultado" (index 4) — using each
+         phrase's own actual start time in the master timeline, so the motif
+         swap always lands exactly on its phrase regardless of the timing
+         constants above. */
+      var motifTarget = container.querySelector('.motif-target');
+      var motifResult = container.querySelector('.motif-result');
+      if(lines.length >= 5 && motifTarget && motifResult){
+        master.to(motifTarget, { opacity:.85, duration:APPEAR }, phraseStart[3]);
+        master.to(motifTarget, { opacity:0, duration:LEAVE }, phraseStart[4]);
+        master.to(motifResult, { opacity:.9, duration:APPEAR }, phraseStart[4]);
+      }
+      /* the data field behind the text organizes in lockstep with scroll progress
+         through this same pinned section — chaotic at "Dados brutos", settled
+         into a legible grid by "Resultados" — so the visual literally performs
+         the DADOS → ORGANIZAÇÃO → INTELIGÊNCIA → DECISÃO → RESULTADO arc the
+         copy describes, using the same particle engine as the rest of the site. */
+      var fieldCanvas = container.querySelector('canvas.living-field');
+      var field = fieldCanvas && window.__fieldRegistry && window.__fieldRegistry.get(fieldCanvas);
+      var fieldTrigger = null;
+      if(field){
+        fieldTrigger = ScrollTrigger.create({
+          trigger: container, start:'top top', end:'bottom bottom', scrub:true,
+          onUpdate: function(self){ field.order = 0.04 + self.progress * 0.9; }
+        });
+      }
+
+      cleanups.push(function(){
+        splits.forEach(function(s){ try{ s.revert(); }catch(e){} });
+        if(master.scrollTrigger) master.scrollTrigger.kill();
+        master.kill();
+        if(fieldTrigger) fieldTrigger.kill();
+        if(field) field.order = parseFloat(fieldCanvas.dataset.order || '0.04');
+        if(motifTarget) gsap.set(motifTarget, { opacity:0 });
+        if(motifResult) gsap.set(motifResult, { opacity:0 });
+        container.classList.remove('manifesto-ready');
+      });
+    }
+
+    /* Exposed for a language switch, split into two steps (see applyLanguage):
+       teardownManifesto() must run BEFORE the DOM text is translated, because
+       SplitText's own .revert() restores the exact text it had cached when
+       the split was created — calling it after translating would silently
+       revert the new language back to whatever phrase was showing before.
+       buildManifestoAll() then re-splits from the now-translated
+       .manifesto-text content, same rebuild the resize handler below already
+       relies on. Both are no-ops if the fonts.ready-deferred first build()
+       hasn't run yet — cleanups/containers are simply empty in that case. */
+    teardownManifesto = function(){
+      cleanups.forEach(function(fn){ fn(); });
+      cleanups = [];
+    };
+    buildManifestoAll = function(){
+      containers.forEach(build);
+      ScrollTrigger.refresh();
+    };
+
+    /* SplitText measures character positions from the rendered font metrics —
+       calling it before Montserrat/Inter finish loading grabs fallback-font
+       measurements that go stale the instant the real font swaps in (and GSAP
+       warns about exactly this). Wait for the fonts, same as the reference. */
+    function start(){
+      containers.forEach(build);
+      requestAnimationFrame(function(){ ScrollTrigger.refresh(); });
+    }
+    if(document.fonts && document.fonts.ready){
+      document.fonts.ready.then(start).catch(start);
+    } else {
+      start();
+    }
+
+    /* character positions depend on line-wrap, which depends on width — rebuild
+       (scoped to just this feature, not the whole page) after a real resize */
+    var resizeTimer;
+    window.addEventListener('resize', function(){
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function(){
+        cleanups.forEach(function(fn){ fn(); });
+        cleanups = [];
+        containers.forEach(build);
+        ScrollTrigger.refresh();
+      }, 200);
+    }, { passive:true });
+  })();
+
+  /* ---------------- Contact wizard: 3 short steps, native validation per step ----------------
+     Each <fieldset data-step> is toggled via the `hidden` attribute. Browsers exclude
+     non-rendered (display:none) fields from constraint validation, so form.reportValidity()
+     called while only one step is visible naturally checks just that step's required
+     fields — no manual per-step validation logic needed. */
+  (function initContactWizard(){
+    var form = document.getElementById('contact-form');
+    if(!form) return;
+    var status = document.getElementById('form-status');
+    var steps = Array.prototype.slice.call(form.querySelectorAll('.wizard-step'));
+    var dots = Array.prototype.slice.call(form.querySelectorAll('[data-dot]'));
+    var current = 1;
+
+    function showStep(n){
+      current = n;
+      steps.forEach(function(step){
+        var stepNum = parseInt(step.getAttribute('data-step'), 10);
+        if(stepNum === n){
+          step.hidden = false;
+          requestAnimationFrame(function(){ step.classList.add('is-active'); });
+        } else {
+          step.classList.remove('is-active');
+          step.hidden = true;
+        }
+      });
+      dots.forEach(function(dot, i){
+        dot.classList.toggle('is-active', i === n - 1);
+        dot.classList.toggle('is-done', i < n - 1);
+      });
+      status.textContent = '';
+      status.classList.remove('is-error');
+    }
+
+    /* validate only the fields inside the currently-visible step — calling
+       form.reportValidity() on the whole form fails here because required
+       fields sitting in the still-hidden later steps are genuine constraint-
+       validation candidates (display:none doesn't exempt them), and Chromium
+       silently blocks navigation with a console warning ("...is not
+       focusable") when it can't bring an invalid-but-hidden field into view */
+    /* immediate, elegant validation: mark just the offending field(s) with
+       .has-error (a soft red ring, not a jarring native alert) as soon as the
+       visitor tries to advance, so feedback appears the instant it's needed */
+    function validateStep(step){
+      var fields = Array.prototype.slice.call(step.querySelectorAll('input, textarea, select'));
+      var firstInvalid = null;
+      fields.forEach(function(f){
+        var wrap = f.closest('.field');
+        var valid = f.checkValidity();
+        if(wrap) wrap.classList.toggle('has-error', !valid);
+        if(!valid && !firstInvalid) firstInvalid = f;
+      });
+      if(firstInvalid){
+        firstInvalid.reportValidity();
+        return false;
+      }
+      return true;
+    }
+    /* clear the error state the moment the visitor starts fixing a field */
+    form.addEventListener('input', function(e){
+      var wrap = e.target.closest('.field');
+      if(wrap) wrap.classList.remove('has-error');
+    });
+    form.addEventListener('change', function(e){
+      if(e.target.name === 'servico') e.target.closest('.wizard-step').classList.remove('has-error');
+    });
+
+    form.querySelectorAll('[data-next]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var step = btn.closest('.wizard-step');
+        if(!validateStep(step)) return;
+        if(current < steps.length) showStep(current + 1);
+      });
+    });
+    form.querySelectorAll('[data-back]').forEach(function(btn){
+      btn.addEventListener('click', function(){ if(current > 1) showStep(current - 1); });
+    });
+
+    form.addEventListener('submit', function(e){
+      e.preventDefault();
+      var step3 = form.querySelector('.wizard-step[data-step="3"]');
+      if(!validateStep(step3)) return;
+
+      var servicoInput = form.querySelector('input[name="servico"]:checked');
+      /* the raw radio `value` stays a stable PT identifier for internal
+         consistency; the mailto content instead uses whatever label is
+         currently on screen (via its data-service-key -> I18N.form.services
+         lookup) so the email reads in whichever language the visitor had
+         selected, not always Portuguese. */
+      var servicoKey = servicoInput ? servicoInput.getAttribute('data-service-key') : '';
+      var servico = servicoKey ? t('form.services.' + servicoKey, currentLang) : (servicoInput ? servicoInput.value : '');
+      var mensagem = form.mensagem.value.trim();
+      var nome = form.nome.value.trim();
+      var empresa = form.empresa.value.trim();
+      var email = form.email.value.trim();
+      var telefone = form.telefone.value.trim();
+
+      if(!servico || !mensagem || !nome || !email){
+        status.textContent = t('form.status.reviewFields', currentLang);
+        status.classList.add('is-error');
+        status.classList.remove('is-success');
+        return;
+      }
+
+      var submitBtn = step3.querySelector('button[type="submit"]');
+      status.classList.remove('is-error');
+      status.classList.add('is-loading');
+      status.textContent = t('form.status.preparing', currentLang);
+      if(submitBtn){ submitBtn.disabled = true; submitBtn.classList.add('is-loading'); }
+
+      /* Web3Forms: the site is static (GitHub Pages, no server-side build step), so
+         there's no Netlify-style backend to capture a plain form POST. Web3Forms is a
+         free (250 submissions/month) form-to-email API — a single JSON POST with the
+         access_key from the markup above is enough for them to deliver the submission
+         to whatever inbox that key is registered to. Falls back to the previous
+         mailto: draft (pre-filled, not auto-sent) so a submission is never silently
+         lost if the request itself fails (offline visitor, API hiccup) rather than
+         just showing a dead-end error. */
+      function mailtoFallback(){
+        var notProvided = t('form.mailto.notProvided', currentLang);
+        var subject = encodeURIComponent(t('form.mailto.subjectPrefix', currentLang) + ' ' + servico + ', ' + nome);
+        var bodyLines = [
+          t('form.mailto.subjectLabel', currentLang) + ' ' + servico,
+          t('form.mailto.nameLabel', currentLang) + ' ' + nome,
+          t('form.mailto.companyLabel', currentLang) + ' ' + (empresa || notProvided),
+          t('form.mailto.emailLabel', currentLang) + ' ' + email,
+          t('form.mailto.phoneLabel', currentLang) + ' ' + (telefone || notProvided),
+          '',
+          mensagem
+        ];
+        var body = encodeURIComponent(bodyLines.join('\n'));
+        window.location.href = 'mailto:contatos@algtrix.com?subject=' + subject + '&body=' + body;
+      }
+
+      fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({
+          access_key: form.access_key.value,
+          botcheck: form.botcheck.checked,
+          subject: t('form.mailto.subjectPrefix', currentLang) + ' ' + servico + ', ' + nome,
+          servico: servico,
+          nome: nome,
+          empresa: empresa,
+          email: email,
+          telefone: telefone,
+          mensagem: mensagem
+        })
+      }).then(function(res){ return res.json().then(function(data){ return { ok: res.ok, data: data }; }); })
+        .then(function(result){
+        if(!result.ok || !result.data || result.data.success === false) throw new Error('Web3Forms error');
+        status.classList.remove('is-loading');
+        status.classList.add('is-success');
+        status.textContent = t('form.status.success', currentLang);
+        if(submitBtn){ submitBtn.disabled = false; submitBtn.classList.remove('is-loading'); }
+        form.reset();
+      }).catch(function(){
+        status.classList.remove('is-loading');
+        status.classList.add('is-error');
+        status.textContent = t('form.status.error', currentLang);
+        if(submitBtn){ submitBtn.disabled = false; submitBtn.classList.remove('is-loading'); }
+        mailtoFallback();
+      });
+    });
+
+    showStep(1);
+  })();
+
+})();
+</script>
+</body>
+</html>

@@ -343,9 +343,14 @@ legend{ padding:0; }
   content:''; position:absolute; inset:0; pointer-events:none;
   background:linear-gradient(to bottom, rgba(28,21,51,.55) 0%, transparent 26%, transparent 62%, var(--ink-950) 100%);
 }
-.hero-inner{ position:relative; z-index:2; width:100%; }
-
-.hero-copy{ max-width:min(46rem,100%); }
+.hero-inner{
+  position:relative; z-index:2; width:100%;
+  display:grid; align-items:end;
+  grid-template-columns:minmax(0,1fr) auto;
+  grid-template-areas:'copy readout' 'meta meta';
+  column-gap:clamp(1.5rem,4vw,3.5rem);
+}
+.hero-copy{ grid-area:copy; max-width:min(46rem,100%); }
 .hero h1{
   font-size:clamp(2.6rem,1.6rem + 4.4vw,5.25rem);
   font-weight:200; letter-spacing:-.042em; line-height:.99;
@@ -361,9 +366,9 @@ legend{ padding:0; }
 
 /* stage readout: the six formations the field moves through */
 .hero-readout{
-  position:absolute; z-index:2; right:var(--gutter); bottom:clamp(3.5rem,9vh,6rem);
-  width:min(19rem,42vw); display:flex; flex-direction:column; gap:.55rem;
-  text-align:right;
+  grid-area:readout; width:max-content; max-width:100%;
+  display:flex; flex-direction:column; gap:.55rem;
+  text-align:right; padding-bottom:.35rem;
 }
 .stage-row{
   display:flex; align-items:center; justify-content:flex-end; gap:.7rem;
@@ -382,7 +387,7 @@ legend{ padding:0; }
 
 /* live measurements describing the field itself — never fabricated business data */
 .hero-meta{
-  position:absolute; z-index:2; left:var(--gutter); bottom:clamp(2rem,5vh,3rem);
+  grid-area:meta; margin-top:clamp(2.25rem,6vh,3.5rem);
   display:flex; align-items:center; gap:1.35rem; flex-wrap:wrap;
   font-family:var(--font-mono); font-size:.6875rem; letter-spacing:.1em; color:var(--fg-dim);
 }
@@ -463,13 +468,15 @@ legend{ padding:0; }
 
 .chart-wrap{ position:relative; }
 .chart{ width:100%; height:auto; overflow:visible; touch-action:pan-y; }
+/* a 24px invisible disc gives each 8px data point a real hit area */
+.chart .node-hit{ fill:transparent; stroke:none; cursor:pointer; }
 .chart .ax,.sol-figure .ax{ stroke:var(--line-strong); stroke-width:1; fill:none; }
 .chart .ax-label,.sol-figure .ax-label{ font-family:var(--font-mono); font-size:8px; fill:var(--fg-dim); letter-spacing:.06em; }
 .chart .band,.sol-figure .band{ fill:rgba(92,73,144,.22); stroke:none; }
 .chart .curve,.sol-figure .curve{ fill:none; stroke:var(--cyan-400); stroke-width:1.75; stroke-linecap:round; stroke-linejoin:round; }
 .chart .curve-proj,.sol-figure .curve-proj{ fill:none; stroke:var(--violet-500); stroke-width:1.5; stroke-dasharray:4 4; }
 .sol-figure .pv-dot{ fill:var(--cyan-300); }
-.chart .node{ fill:var(--ink-850); stroke:var(--cyan-400); stroke-width:1.5; cursor:pointer; transition:r var(--dur-2) var(--ease-out), fill .25s; }
+.chart .node{ fill:var(--ink-850); stroke:var(--cyan-400); stroke-width:1.5; cursor:pointer; pointer-events:all; transition:r var(--dur-2) var(--ease-out), fill .25s; }
 .chart .node:hover,.chart .node.is-on{ fill:var(--cyan-300); r:5.5; }
 .chart .scan{ stroke:var(--cyan-300); stroke-width:1; opacity:0; transition:opacity var(--dur-2); }
 .chart .scan.is-on{ opacity:.5; }
@@ -782,7 +789,7 @@ legend{ padding:0; }
 .footer-brand img{ height:22px; width:auto; opacity:.7; }
 .footer-tag{ font-size:.8125rem; color:var(--fg-dim); }
 .footer-legal{ font-size:.8125rem; color:var(--fg-dim); }
-.back-to-top{ font-family:var(--font-mono); font-size:.6875rem; letter-spacing:.14em; text-transform:uppercase; color:var(--fg-dim); transition:color var(--dur-2); }
+.back-to-top{ display:inline-flex; align-items:center; min-height:var(--tap-min); font-family:var(--font-mono); font-size:.6875rem; letter-spacing:.14em; text-transform:uppercase; color:var(--fg-dim); transition:color var(--dur-2); }
 .back-to-top:hover{ color:var(--cyan-300); }
 
 /* ==========================================================================
@@ -806,13 +813,13 @@ legend{ padding:0; }
 
 /* 1180px is where the hero readout would start colliding with the headline */
 @media (max-width:1180px){
+  .hero-inner{ grid-template-columns:1fr; grid-template-areas:'copy' 'readout' 'meta'; }
   .hero-readout{
-    position:static; width:auto; text-align:left;
-    margin-top:clamp(2.5rem,6vh,3.5rem); max-width:100%;
+    width:100%; text-align:left; margin-top:clamp(2.5rem,6vh,3.5rem); padding-bottom:0;
   }
   .stage-row{ justify-content:flex-start; }
   .stage-row .stage-bar{ transform-origin:left center; }
-  .hero-meta{ position:static; margin-top:var(--s-5); }
+  .hero-meta{ margin-top:var(--s-5); }
   .hero{ min-height:auto; padding-block:calc(var(--header-h) + 3.5rem) clamp(3rem,8vh,5rem); }
 }
 
@@ -882,6 +889,39 @@ legend{ padding:0; }
   .decision-line{ font-size:clamp(1.55rem,7.4vw,1.75rem); }
   .close h2{ font-size:clamp(1.75rem,8vw,2rem); }
   .kpi-v{ font-size:1.75rem; }
+}
+
+/* ==========================================================================
+   17b · CROSS-BROWSER
+   Nothing here changes the design; each rule covers an engine that lacks a
+   feature the design uses.
+   ========================================================================== */
+/* iOS Safari repaints a fixed, backdrop-filtered bar badly without its own
+   compositing layer */
+.site-header{ -webkit-transform:translateZ(0); transform:translateZ(0); }
+
+/* Safari < 15 has no aspect-ratio: keep the risk canvas from collapsing */
+@supports not (aspect-ratio: 1 / 1){
+  .risk-canvas-wrap{ height:0; padding-bottom:82%; }
+}
+
+/* Safari < 15.4 has no :focus-visible; without it keyboard users get no ring */
+@supports not selector(:focus-visible){
+  a:focus, button:focus, input:focus, textarea:focus, [tabindex]:focus{
+    outline:2px solid var(--cyan-400); outline-offset:3px;
+  }
+}
+
+/* Firefox ignores ::-webkit-scrollbar; the standard properties above cover it,
+   and this keeps the thumb legible where neither applies */
+@supports not (scrollbar-color: auto){
+  ::-webkit-scrollbar-thumb{ background:var(--ink-700); }
+}
+
+/* text-wrap:balance is progressive; where it is missing, cap the measure so a
+   heading still breaks sensibly */
+@supports not (text-wrap: balance){
+  .h-section,.hero h1,.close h2{ max-width:20ch; }
 }
 
 /* ==========================================================================
@@ -957,20 +997,20 @@ legend{ padding:0; }
         <a class="btn btn-ghost" href="#inteligencia"><span data-i18n="hero.ctaSecondary">Explorar nossa inteligência</span><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4"/></svg></a>
       </div>
     </div>
-  </div>
-  <div class="hero-readout" id="hero-readout" aria-hidden="true">
+    <div class="hero-readout" id="hero-readout" aria-hidden="true">
     <div class="stage-row is-active" data-stage="0"><span class="stage-idx">01</span><span data-i18n="hero.stage1">Dados brutos</span><i class="stage-bar"></i></div>
     <div class="stage-row" data-stage="1"><span class="stage-idx">02</span><span data-i18n="hero.stage2">Organização</span><i class="stage-bar"></i></div>
     <div class="stage-row" data-stage="2"><span class="stage-idx">03</span><span data-i18n="hero.stage3">Modelagem</span><i class="stage-bar"></i></div>
     <div class="stage-row" data-stage="3"><span class="stage-idx">04</span><span data-i18n="hero.stage4">Risco</span><i class="stage-bar"></i></div>
     <div class="stage-row" data-stage="4"><span class="stage-idx">05</span><span data-i18n="hero.stage5">Inteligência</span><i class="stage-bar"></i></div>
     <div class="stage-row" data-stage="5"><span class="stage-idx">06</span><span data-i18n="hero.stage6">Decisão</span><i class="stage-bar"></i></div>
-  </div>
-  <div class="hero-meta">
+    </div>
+    <div class="hero-meta">
     <span>n <b class="mono-val" id="field-n">14 000</b></span>
     <span>σ <b class="mono-val" id="field-sigma">0.184</b></span>
     <span data-i18n="hero.stageLabel">estágio</span> <b class="mono-val" id="field-stage">01/06</b>
     <span class="hero-scroll"><i></i><span data-i18n="hero.scrollCue">Role para explorar</span></span>
+    </div>
   </div>
 </section>
 
@@ -1051,7 +1091,7 @@ legend{ padding:0; }
             <path class="curve" d="M44.0 215.3 C50.9 211.6 71.5 193.9 85.3 192.8 C99.0 191.7 112.8 211.6 126.6 208.8 C140.3 205.9 154.1 185.4 167.9 175.9 C181.6 166.4 195.4 153.5 209.1 151.5 C222.9 149.5 236.7 165.6 250.4 163.7 C264.2 161.8 278.0 146.8 291.7 140.2 C305.5 133.7 319.2 124.9 333.0 124.3 C346.8 123.7 360.5 138.8 374.3 136.5 C388.0 134.1 401.8 116.9 415.6 110.2 C429.3 103.5 443.1 97.1 456.9 96.1 C470.6 95.2 491.3 103.2 498.1 104.6"/>
             <line class="scan" id="engine-scan" x1="0" y1="22" x2="0" y2="266"/>
             <text class="ax-label" x="44.0" y="286" text-anchor="middle">JAN</text><text class="ax-label" x="126.6" y="286" text-anchor="middle">MAR</text><text class="ax-label" x="209.1" y="286" text-anchor="middle">MAI</text><text class="ax-label" x="291.7" y="286" text-anchor="middle">JUL</text><text class="ax-label" x="374.3" y="286" text-anchor="middle">SET</text><text class="ax-label" x="456.9" y="286" text-anchor="middle">NOV</text>
-            <circle class="node" cx="44.0" cy="215.3" r="3.4" data-i="0" data-m="JAN" data-v="71.4" tabindex="0" role="button" aria-label="JAN: 71.4 por cento"/><circle class="node" cx="85.3" cy="192.8" r="3.4" data-i="1" data-m="FEV" data-v="73.8" tabindex="0" role="button" aria-label="FEV: 73.8 por cento"/><circle class="node" cx="126.6" cy="208.8" r="3.4" data-i="2" data-m="MAR" data-v="72.1" tabindex="0" role="button" aria-label="MAR: 72.1 por cento"/><circle class="node" cx="167.9" cy="175.9" r="3.4" data-i="3" data-m="ABR" data-v="75.6" tabindex="0" role="button" aria-label="ABR: 75.6 por cento"/><circle class="node" cx="209.1" cy="151.5" r="3.4" data-i="4" data-m="MAI" data-v="78.2" tabindex="0" role="button" aria-label="MAI: 78.2 por cento"/><circle class="node" cx="250.4" cy="163.7" r="3.4" data-i="5" data-m="JUN" data-v="76.9" tabindex="0" role="button" aria-label="JUN: 76.9 por cento"/><circle class="node" cx="291.7" cy="140.2" r="3.4" data-i="6" data-m="JUL" data-v="79.4" tabindex="0" role="button" aria-label="JUL: 79.4 por cento"/><circle class="node" cx="333.0" cy="124.3" r="3.4" data-i="7" data-m="AGO" data-v="81.1" tabindex="0" role="button" aria-label="AGO: 81.1 por cento"/><circle class="node" cx="374.3" cy="136.5" r="3.4" data-i="8" data-m="SET" data-v="79.8" tabindex="0" role="button" aria-label="SET: 79.8 por cento"/><circle class="node" cx="415.6" cy="110.2" r="3.4" data-i="9" data-m="OUT" data-v="82.6" tabindex="0" role="button" aria-label="OUT: 82.6 por cento"/><circle class="node" cx="456.9" cy="96.1" r="3.4" data-i="10" data-m="NOV" data-v="84.1" tabindex="0" role="button" aria-label="NOV: 84.1 por cento"/><circle class="node" cx="498.1" cy="104.6" r="3.4" data-i="11" data-m="DEZ" data-v="83.2" tabindex="0" role="button" aria-label="DEZ: 83.2 por cento"/>
+            <circle class="node-hit" cx="44.0" cy="215.3" r="13" aria-hidden="true"/><circle class="node" cx="44.0" cy="215.3" r="3.4" data-i="0" data-m="JAN" data-v="71.4" tabindex="0" role="button" aria-label="JAN: 71.4 por cento"/><circle class="node-hit" cx="85.3" cy="192.8" r="13" aria-hidden="true"/><circle class="node" cx="85.3" cy="192.8" r="3.4" data-i="1" data-m="FEV" data-v="73.8" tabindex="0" role="button" aria-label="FEV: 73.8 por cento"/><circle class="node-hit" cx="126.6" cy="208.8" r="13" aria-hidden="true"/><circle class="node" cx="126.6" cy="208.8" r="3.4" data-i="2" data-m="MAR" data-v="72.1" tabindex="0" role="button" aria-label="MAR: 72.1 por cento"/><circle class="node-hit" cx="167.9" cy="175.9" r="13" aria-hidden="true"/><circle class="node" cx="167.9" cy="175.9" r="3.4" data-i="3" data-m="ABR" data-v="75.6" tabindex="0" role="button" aria-label="ABR: 75.6 por cento"/><circle class="node-hit" cx="209.1" cy="151.5" r="13" aria-hidden="true"/><circle class="node" cx="209.1" cy="151.5" r="3.4" data-i="4" data-m="MAI" data-v="78.2" tabindex="0" role="button" aria-label="MAI: 78.2 por cento"/><circle class="node-hit" cx="250.4" cy="163.7" r="13" aria-hidden="true"/><circle class="node" cx="250.4" cy="163.7" r="3.4" data-i="5" data-m="JUN" data-v="76.9" tabindex="0" role="button" aria-label="JUN: 76.9 por cento"/><circle class="node-hit" cx="291.7" cy="140.2" r="13" aria-hidden="true"/><circle class="node" cx="291.7" cy="140.2" r="3.4" data-i="6" data-m="JUL" data-v="79.4" tabindex="0" role="button" aria-label="JUL: 79.4 por cento"/><circle class="node-hit" cx="333.0" cy="124.3" r="13" aria-hidden="true"/><circle class="node" cx="333.0" cy="124.3" r="3.4" data-i="7" data-m="AGO" data-v="81.1" tabindex="0" role="button" aria-label="AGO: 81.1 por cento"/><circle class="node-hit" cx="374.3" cy="136.5" r="13" aria-hidden="true"/><circle class="node" cx="374.3" cy="136.5" r="3.4" data-i="8" data-m="SET" data-v="79.8" tabindex="0" role="button" aria-label="SET: 79.8 por cento"/><circle class="node-hit" cx="415.6" cy="110.2" r="13" aria-hidden="true"/><circle class="node" cx="415.6" cy="110.2" r="3.4" data-i="9" data-m="OUT" data-v="82.6" tabindex="0" role="button" aria-label="OUT: 82.6 por cento"/><circle class="node-hit" cx="456.9" cy="96.1" r="13" aria-hidden="true"/><circle class="node" cx="456.9" cy="96.1" r="3.4" data-i="10" data-m="NOV" data-v="84.1" tabindex="0" role="button" aria-label="NOV: 84.1 por cento"/><circle class="node-hit" cx="498.1" cy="104.6" r="13" aria-hidden="true"/><circle class="node" cx="498.1" cy="104.6" r="3.4" data-i="11" data-m="DEZ" data-v="83.2" tabindex="0" role="button" aria-label="DEZ: 83.2 por cento"/>
           </svg>
           <div class="chart-tip" id="engine-tip" role="status" aria-live="polite">
             <div class="tip-k" id="tip-k">JAN</div>
@@ -1998,7 +2038,11 @@ legend{ padding:0; }
       tipV.textContent = (currentLang === 'en' ? v.toFixed(1) : v.toFixed(1).replace('.', ',')) + '%';
 
       var nb = node.getBoundingClientRect(), wb = wrap.getBoundingClientRect();
-      tip.style.left = (nb.left - wb.left + nb.width / 2) + 'px';
+      /* keep the bubble inside the panel: half its own width is the margin it
+         needs on each side once translate(-50%) is applied */
+      var half = tip.offsetWidth / 2 || 76;
+      var x = nb.left - wb.left + nb.width / 2;
+      tip.style.left = Math.max(half + 4, Math.min(wb.width - half - 4, x)) + 'px';
       tip.style.top  = (nb.top  - wb.top) + 'px';
       tip.classList.add('is-on');
 
@@ -2016,10 +2060,15 @@ legend{ padding:0; }
     }
 
     nodes.forEach(function(node){
+      var pad = node.previousElementSibling;
+      if(pad && pad.classList.contains('node-hit')){
+        pad.addEventListener('mouseenter', function(){ show(node); });
+      }
       node.addEventListener('mouseenter', function(){ show(node); });
       node.addEventListener('focus', function(){ show(node); });
       node.addEventListener('blur', hide);
       node.addEventListener('keydown', function(e){
+        if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); show(node); }
         if(e.key === 'Escape'){ hide(); node.blur(); }
       });
     });
@@ -2432,6 +2481,9 @@ legend{ padding:0; }
       });
     });
 
+    /* the module is already cached by the hero, but the context, buffers and
+       shader compile are not free — build them only when the section nears */
+    function buildRiskScene(){
     import('https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js').then(function(THREE){
       var renderer = new THREE.WebGLRenderer({ canvas:canvas, antialias:false, alpha:true, powerPreference:'low-power' });
       var DPR = Math.min(window.devicePixelRatio || 1, 1.6);
@@ -2539,6 +2591,15 @@ legend{ padding:0; }
         renderer.render(scene, camera);
       })(performance.now());
     }).catch(function(){ /* metrics and tabs still work without WebGL */ });
+    }
+    if('IntersectionObserver' in window){
+      var boot = new IntersectionObserver(function(en){
+        if(!en[0].isIntersecting) return;
+        boot.disconnect();
+        buildRiskScene();
+      }, { rootMargin:'300px 0px' });
+      boot.observe(doc.getElementById('risco'));
+    } else { buildRiskScene(); }
   })();
 
   /* ==========================================================================

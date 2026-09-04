@@ -346,8 +346,9 @@ legend{ padding:0; }
 .hero-inner{
   position:relative; z-index:2; width:100%;
   display:grid; align-items:end;
-  grid-template-columns:minmax(0,1fr) auto;
-  grid-template-areas:'copy readout' 'meta meta';
+  grid-template-columns:minmax(0,1fr) minmax(0,26rem);
+  grid-template-areas:'copy plot' 'copy readout' 'meta meta';
+  row-gap:clamp(1.25rem,3vh,2rem);
   column-gap:clamp(1.5rem,4vw,3.5rem);
 }
 .hero-copy{ grid-area:copy; max-width:min(46rem,100%); }
@@ -363,6 +364,43 @@ legend{ padding:0; }
   line-height:1.62; color:var(--fg-muted);
 }
 .hero-actions{ display:flex; flex-wrap:wrap; gap:var(--s-3); margin-top:var(--s-6); }
+
+
+/* ---- hero data plot: bars, a moving average derived from them, and a head
+   point that travels the trend as it draws. Abstract index, never a metric ---- */
+.hero-panel{ grid-area:plot; width:100%; max-width:26rem; justify-self:end; }
+.hero-plot{ width:100%; height:auto; overflow:visible; }
+.hp-grid{ stroke:var(--line); stroke-width:1; }
+.hp-axis{ stroke:var(--line-strong); stroke-width:1; }
+.hp-tick{ stroke:var(--line-strong); stroke-width:1; }
+.hp-note{ font-family:var(--font-mono); font-size:8px; letter-spacing:.1em; fill:var(--fg-dim); text-transform:uppercase; }
+.hp-bar{
+  fill:var(--cyan-400); opacity:.30;
+  transform:scaleY(0); transform-origin:center bottom; transform-box:fill-box;
+}
+.hp-bar:nth-child(3n){ fill:var(--violet-500); opacity:.38; }
+.hp-trend{
+  fill:none; stroke:var(--cyan-300); stroke-width:1.6; stroke-linecap:round;
+  stroke-dasharray:var(--len); stroke-dashoffset:var(--len);
+}
+.hp-head{ fill:var(--cyan-200); opacity:0; }
+
+.is-plotting .hp-bar{
+  transform:scaleY(1);
+  transition:transform var(--dur-5) var(--ease-out);
+  transition-delay:calc(var(--i) * 45ms);
+}
+.is-plotting .hp-trend{
+  stroke-dashoffset:0;
+  transition:stroke-dashoffset 1.6s var(--ease-out) .75s;
+}
+.is-plotting .hp-head{ opacity:1; transition:opacity var(--dur-4) ease 2.2s; }
+
+@media (prefers-reduced-motion:reduce){
+  .hp-bar{ transform:scaleY(1); }
+  .hp-trend{ stroke-dashoffset:0; }
+  .hp-head{ opacity:1; }
+}
 
 /* stage readout: the six formations the field moves through */
 .hero-readout{
@@ -800,6 +838,82 @@ legend{ padding:0; }
 [data-reveal].is-in{ opacity:1; transform:none; }
 .no-js [data-reveal]{ opacity:1; transform:none; }
 
+
+/* ---- analytic grounds: each section carries the notation of its own subject,
+   never the same texture twice ---- */
+.engine{ position:relative; isolation:isolate; }
+.engine::before{                                  /* a measuring grid */
+  content:''; position:absolute; inset:0; z-index:-1; pointer-events:none; opacity:.5;
+  background-image:
+    repeating-linear-gradient(to right, rgba(255,255,255,.028) 0 1px, transparent 1px 74px),
+    repeating-linear-gradient(to bottom, rgba(255,255,255,.028) 0 1px, transparent 1px 74px);
+  mask-image:linear-gradient(to bottom, transparent, #000 22%, #000 78%, transparent);
+  -webkit-mask-image:linear-gradient(to bottom, transparent, #000 22%, #000 78%, transparent);
+}
+.risk{ position:relative; isolation:isolate; }
+.risk::before{                                    /* confidence rings */
+  content:''; position:absolute; inset:0; z-index:-1; pointer-events:none; opacity:.55;
+  background-image:repeating-radial-gradient(circle at 32% 55%, rgba(120,98,173,.10) 0 1px, transparent 1px 78px);
+  mask-image:radial-gradient(70% 70% at 32% 55%, #000, transparent);
+  -webkit-mask-image:radial-gradient(70% 70% at 32% 55%, #000, transparent);
+}
+.pillars{ position:relative; isolation:isolate; }
+.pillars::before{                                 /* a measurement scale */
+  content:''; position:absolute; inset:auto 0 0 0; height:120px; z-index:-1; pointer-events:none;
+  background-image:repeating-linear-gradient(to right, rgba(65,183,196,.16) 0 1px, transparent 1px 26px);
+  mask-image:linear-gradient(to top, #000, transparent);
+  -webkit-mask-image:linear-gradient(to top, #000, transparent);
+}
+
+/* ---- data motes: abstract indices drifting behind the hero, never metrics ---- */
+.hero-motes{ position:absolute; inset:0; z-index:1; pointer-events:none; overflow:hidden; }
+.mote{
+  position:absolute; font-family:var(--font-mono); font-size:.625rem; letter-spacing:.1em;
+  color:var(--cyan-400); opacity:.13; white-space:nowrap;
+  animation:moteDrift linear infinite;
+}
+@keyframes moteDrift{
+  from{ transform:translate3d(0,14px,0); opacity:0; }
+  12%{ opacity:.16; }
+  88%{ opacity:.16; }
+  to{ transform:translate3d(0,-46px,0); opacity:0; }
+}
+@media (max-width:860px){ .hero-motes{ display:none; } }
+@media (prefers-reduced-motion:reduce){ .hero-motes{ display:none; } }
+
+/* ---- a curve that draws itself, with the newest reading riding the head ---- */
+.chart .curve, .chart .curve-proj{ stroke-dasharray:var(--len,1); stroke-dashoffset:var(--len,1); }
+.chart-drawn .curve{ stroke-dashoffset:0; transition:stroke-dashoffset 1.8s var(--ease-out); }
+.chart-drawn .curve-proj{ stroke-dashoffset:0; transition:stroke-dashoffset var(--dur-plot) var(--ease-out) 1.5s; }
+.chart .band{ opacity:0; }
+.chart-drawn .band{ opacity:1; transition:opacity var(--dur-5) ease 1.7s; }
+.chart .node{ opacity:0; }
+.chart-drawn .node{ opacity:1; transition:opacity var(--dur-3) var(--ease-out); }
+.chart-head{ fill:var(--cyan-200); opacity:0; }
+.chart-drawn .chart-head{ opacity:1; }
+
+/* ---- bars that grow as if the series were being processed ---- */
+.sol-figure rect{ transform:scaleY(0); transform-origin:center bottom; transform-box:fill-box; }
+.sol-body.is-plotted .sol-figure rect{
+  transform:scaleY(1); transition:transform var(--dur-5) var(--ease-out);
+}
+.sol-figure rect:nth-of-type(2n){ transition-delay:70ms; }
+.sol-figure rect:nth-of-type(3n){ transition-delay:140ms; }
+.sol-figure rect:nth-of-type(4n){ transition-delay:210ms; }
+
+/* ---- pillar instruments come alive when the row is reached ---- */
+.pillar-viz svg *{ opacity:0; }
+.pillar.is-in-view .pillar-viz svg *{ opacity:1; transition:opacity var(--dur-5) var(--ease-out); }
+.pillar.is-in-view:nth-child(2) .pillar-viz svg *{ transition-delay:.1s; }
+.pillar.is-in-view:nth-child(3) .pillar-viz svg *{ transition-delay:.2s; }
+.pillar.is-in-view:nth-child(4) .pillar-viz svg *{ transition-delay:.3s; }
+@media (prefers-reduced-motion:reduce){
+  .chart .curve,.chart .curve-proj{ stroke-dashoffset:0 !important; }
+  .chart .band,.chart .node,.chart-head{ opacity:1 !important; }
+  .sol-figure rect{ transform:scaleY(1) !important; }
+  .pillar-viz svg *{ opacity:1 !important; }
+}
+
 /* ==========================================================================
    17 · RESPONSIVE
    Breakpoints follow the content, not device names: each one is the width at
@@ -813,7 +927,8 @@ legend{ padding:0; }
 
 /* 1180px is where the hero readout would start colliding with the headline */
 @media (max-width:1180px){
-  .hero-inner{ grid-template-columns:1fr; grid-template-areas:'copy' 'readout' 'meta'; }
+  .hero-inner{ grid-template-columns:1fr; grid-template-areas:'copy' 'plot' 'readout' 'meta'; }
+  .hero-panel{ justify-self:start; max-width:32rem; margin-top:clamp(2rem,5vh,3rem); }
   .hero-readout{
     width:100%; text-align:left; margin-top:clamp(2.5rem,6vh,3.5rem); padding-bottom:0;
   }
@@ -988,6 +1103,7 @@ legend{ padding:0; }
 <!-- ============================ HERO ============================ -->
 <section class="hero" id="inicio">
   <canvas class="hero-canvas" id="hero-canvas" aria-hidden="true"></canvas>
+  <div class="hero-motes" id="hero-motes" aria-hidden="true"></div>
   <div class="hero-inner shell">
     <div class="hero-copy">
       <h1 data-i18n-html="hero.headline">Transformamos incerteza em <strong>inteligência</strong>.</h1>
@@ -996,6 +1112,9 @@ legend{ padding:0; }
         <a class="btn btn-primary" href="#contato"><span data-i18n="cta.talkToSpecialist">Falar com um especialista</span><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4"/></svg></a>
         <a class="btn btn-ghost" href="#inteligencia"><span data-i18n="hero.ctaSecondary">Explorar nossa inteligência</span><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4"/></svg></a>
       </div>
+    </div>
+    <div class="hero-panel" aria-hidden="true">
+      <svg class="hero-plot" viewBox="0 0 420 210" aria-hidden="true" focusable="false"><g class="hp-grid-g"><line class="hp-grid" x1="8" y1="138.5" x2="412" y2="138.5"/><line class="hp-grid" x1="8" y1="101.0" x2="412" y2="101.0"/><line class="hp-grid" x1="8" y1="63.5" x2="412" y2="63.5"/><line class="hp-grid" x1="8" y1="26.0" x2="412" y2="26.0"/></g><line class="hp-axis" x1="8" y1="176.0" x2="412" y2="176.0"/><g class="hp-ticks"><line class="hp-tick" x1="23.5" y1="179.0" x2="23.5" y2="183.0"/><line class="hp-tick" x1="90.7" y1="179.0" x2="90.7" y2="183.0"/><line class="hp-tick" x1="157.9" y1="179.0" x2="157.9" y2="183.0"/><line class="hp-tick" x1="225.1" y1="179.0" x2="225.1" y2="183.0"/><line class="hp-tick" x1="292.3" y1="179.0" x2="292.3" y2="183.0"/><line class="hp-tick" x1="359.5" y1="179.0" x2="359.5" y2="183.0"/></g><g class="hp-bars"><rect class="hp-bar" x="14.0" y="160.0" width="19.0" height="16.0" rx="1" style="--i:0;--h:16.0"/><rect class="hp-bar" x="36.4" y="136.5" width="19.0" height="39.5" rx="1" style="--i:1;--h:39.5"/><rect class="hp-bar" x="58.8" y="123.8" width="19.0" height="52.2" rx="1" style="--i:2;--h:52.2"/><rect class="hp-bar" x="81.2" y="111.6" width="19.0" height="64.4" rx="1" style="--i:3;--h:64.4"/><rect class="hp-bar" x="103.6" y="108.6" width="19.0" height="67.4" rx="1" style="--i:4;--h:67.4"/><rect class="hp-bar" x="126.0" y="97.6" width="19.0" height="78.4" rx="1" style="--i:5;--h:78.4"/><rect class="hp-bar" x="148.4" y="118.2" width="19.0" height="57.8" rx="1" style="--i:6;--h:57.8"/><rect class="hp-bar" x="170.8" y="129.2" width="19.0" height="46.8" rx="1" style="--i:7;--h:46.8"/><rect class="hp-bar" x="193.2" y="133.8" width="19.0" height="42.2" rx="1" style="--i:8;--h:42.2"/><rect class="hp-bar" x="215.6" y="136.2" width="19.0" height="39.8" rx="1" style="--i:9;--h:39.8"/><rect class="hp-bar" x="238.0" y="130.8" width="19.0" height="45.2" rx="1" style="--i:10;--h:45.2"/><rect class="hp-bar" x="260.4" y="121.0" width="19.0" height="55.0" rx="1" style="--i:11;--h:55.0"/><rect class="hp-bar" x="282.8" y="107.1" width="19.0" height="68.9" rx="1" style="--i:12;--h:68.9"/><rect class="hp-bar" x="305.2" y="81.7" width="19.0" height="94.3" rx="1" style="--i:13;--h:94.3"/><rect class="hp-bar" x="327.6" y="60.4" width="19.0" height="115.6" rx="1" style="--i:14;--h:115.6"/><rect class="hp-bar" x="350.0" y="36.2" width="19.0" height="139.8" rx="1" style="--i:15;--h:139.8"/><rect class="hp-bar" x="372.4" y="30.1" width="19.0" height="145.9" rx="1" style="--i:16;--h:145.9"/><rect class="hp-bar" x="394.8" y="26.0" width="19.0" height="150.0" rx="1" style="--i:17;--h:150.0"/></g><path class="hp-trend" d="M23.5 160.0 C27.2 158.0 38.4 151.6 45.9 148.2 C53.4 144.9 60.8 144.1 68.3 140.1 C75.8 136.0 83.2 128.2 90.7 123.9 C98.2 119.7 105.6 117.7 113.1 114.7 C120.6 111.7 128.0 107.0 135.5 105.9 C143.0 104.9 150.4 106.6 157.9 108.2 C165.4 109.7 172.8 111.9 180.3 115.0 C187.8 118.2 195.2 124.1 202.7 127.1 C210.2 130.1 217.6 132.0 225.1 133.1 C232.6 134.2 240.0 134.2 247.5 133.6 C255.0 133.0 262.4 131.7 269.9 129.3 C277.4 127.0 284.8 124.0 292.3 119.7 C299.8 115.3 307.2 109.4 314.7 103.3 C322.2 97.2 329.6 90.4 337.1 83.1 C344.6 75.8 352.0 66.3 359.5 59.5 C367.0 52.6 374.4 47.0 381.9 42.2 C389.4 37.5 400.6 32.7 404.3 30.8" style="--len:459"/><circle class="hp-head" r="3.1" cx="404.3" cy="30.8"/><text class="hp-note" x="8" y="16">índice conceitual</text><text class="hp-note hp-note-r" x="412" y="16" text-anchor="end">média móvel 3p</text></svg>
     </div>
     <div class="hero-readout" id="hero-readout" aria-hidden="true">
     <div class="stage-row is-active" data-stage="0"><span class="stage-idx">01</span><span data-i18n="hero.stage1">Dados brutos</span><i class="stage-bar"></i></div>
@@ -1089,6 +1208,7 @@ legend{ padding:0; }
             <path class="band" d="M498.1 82.1 L539.4 66.1 L580.7 59.5 L622.0 48.3 L622.0 93.3 L580.7 104.6 L539.4 111.2 L498.1 127.1 Z"/>
             <path class="curve-proj" d="M498.1 104.6 C505.0 101.9 525.7 92.4 539.4 88.6 C553.2 84.9 567.0 85.0 580.7 82.1 C594.5 79.1 615.1 72.7 622.0 70.8"/>
             <path class="curve" d="M44.0 215.3 C50.9 211.6 71.5 193.9 85.3 192.8 C99.0 191.7 112.8 211.6 126.6 208.8 C140.3 205.9 154.1 185.4 167.9 175.9 C181.6 166.4 195.4 153.5 209.1 151.5 C222.9 149.5 236.7 165.6 250.4 163.7 C264.2 161.8 278.0 146.8 291.7 140.2 C305.5 133.7 319.2 124.9 333.0 124.3 C346.8 123.7 360.5 138.8 374.3 136.5 C388.0 134.1 401.8 116.9 415.6 110.2 C429.3 103.5 443.1 97.1 456.9 96.1 C470.6 95.2 491.3 103.2 498.1 104.6"/>
+            <circle class="chart-head" id="chart-head" r="3.4" cx="0" cy="0"/>
             <line class="scan" id="engine-scan" x1="0" y1="22" x2="0" y2="266"/>
             <text class="ax-label" x="44.0" y="286" text-anchor="middle">JAN</text><text class="ax-label" x="126.6" y="286" text-anchor="middle">MAR</text><text class="ax-label" x="209.1" y="286" text-anchor="middle">MAI</text><text class="ax-label" x="291.7" y="286" text-anchor="middle">JUL</text><text class="ax-label" x="374.3" y="286" text-anchor="middle">SET</text><text class="ax-label" x="456.9" y="286" text-anchor="middle">NOV</text>
             <circle class="node-hit" cx="44.0" cy="215.3" r="13" aria-hidden="true"/><circle class="node" cx="44.0" cy="215.3" r="3.4" data-i="0" data-m="JAN" data-v="71.4" tabindex="0" role="button" aria-label="JAN: 71.4 por cento"/><circle class="node-hit" cx="85.3" cy="192.8" r="13" aria-hidden="true"/><circle class="node" cx="85.3" cy="192.8" r="3.4" data-i="1" data-m="FEV" data-v="73.8" tabindex="0" role="button" aria-label="FEV: 73.8 por cento"/><circle class="node-hit" cx="126.6" cy="208.8" r="13" aria-hidden="true"/><circle class="node" cx="126.6" cy="208.8" r="3.4" data-i="2" data-m="MAR" data-v="72.1" tabindex="0" role="button" aria-label="MAR: 72.1 por cento"/><circle class="node-hit" cx="167.9" cy="175.9" r="13" aria-hidden="true"/><circle class="node" cx="167.9" cy="175.9" r="3.4" data-i="3" data-m="ABR" data-v="75.6" tabindex="0" role="button" aria-label="ABR: 75.6 por cento"/><circle class="node-hit" cx="209.1" cy="151.5" r="13" aria-hidden="true"/><circle class="node" cx="209.1" cy="151.5" r="3.4" data-i="4" data-m="MAI" data-v="78.2" tabindex="0" role="button" aria-label="MAI: 78.2 por cento"/><circle class="node-hit" cx="250.4" cy="163.7" r="13" aria-hidden="true"/><circle class="node" cx="250.4" cy="163.7" r="3.4" data-i="5" data-m="JUN" data-v="76.9" tabindex="0" role="button" aria-label="JUN: 76.9 por cento"/><circle class="node-hit" cx="291.7" cy="140.2" r="13" aria-hidden="true"/><circle class="node" cx="291.7" cy="140.2" r="3.4" data-i="6" data-m="JUL" data-v="79.4" tabindex="0" role="button" aria-label="JUL: 79.4 por cento"/><circle class="node-hit" cx="333.0" cy="124.3" r="13" aria-hidden="true"/><circle class="node" cx="333.0" cy="124.3" r="3.4" data-i="7" data-m="AGO" data-v="81.1" tabindex="0" role="button" aria-label="AGO: 81.1 por cento"/><circle class="node-hit" cx="374.3" cy="136.5" r="13" aria-hidden="true"/><circle class="node" cx="374.3" cy="136.5" r="3.4" data-i="8" data-m="SET" data-v="79.8" tabindex="0" role="button" aria-label="SET: 79.8 por cento"/><circle class="node-hit" cx="415.6" cy="110.2" r="13" aria-hidden="true"/><circle class="node" cx="415.6" cy="110.2" r="3.4" data-i="9" data-m="OUT" data-v="82.6" tabindex="0" role="button" aria-label="OUT: 82.6 por cento"/><circle class="node-hit" cx="456.9" cy="96.1" r="13" aria-hidden="true"/><circle class="node" cx="456.9" cy="96.1" r="3.4" data-i="10" data-m="NOV" data-v="84.1" tabindex="0" role="button" aria-label="NOV: 84.1 por cento"/><circle class="node-hit" cx="498.1" cy="104.6" r="13" aria-hidden="true"/><circle class="node" cx="498.1" cy="104.6" r="3.4" data-i="11" data-m="DEZ" data-v="83.2" tabindex="0" role="button" aria-label="DEZ: 83.2 por cento"/>
@@ -2104,6 +2224,135 @@ legend{ padding:0; }
     });
   })();
 
+
+  /* ==========================================================================
+     DATA EFFECTS — every animation here is the data doing something: bars
+     growing as a series is processed, a curve drawing with the newest reading
+     at its head, indices drifting behind the hero. Nothing decorative.
+     ========================================================================== */
+
+  /* ---- hero plot: bars grow, then the moving average draws over them ---- */
+  (function initHeroPlot(){
+    var panel = doc.querySelector('.hero-panel');
+    if(!panel) return;
+    if(REDUCED){ panel.classList.add('is-plotting'); return; }
+    setTimeout(function(){ panel.classList.add('is-plotting'); }, 420);
+  })();
+
+  /* ---- abstract indices drifting behind the hero ---- */
+  (function initMotes(){
+    var host = doc.getElementById('hero-motes');
+    if(!host || REDUCED || window.innerWidth < 860) return;
+    /* deliberately abstract: indices, deltas and coordinates that cannot be
+       read as an Algtrix figure */
+    var pool = ['0.184','n=14k','σ 1.02','+2.4pp','λ 0.61','R² .94','x̄ 0.72','p<.05',
+                'β 1.13','E[X]','1 0 1 1 0','q95','Δ 0.08','t 12','μ 0.5'];
+    var frag = doc.createDocumentFragment();
+    for(var i = 0; i < 14; i++){
+      var s = doc.createElement('span');
+      s.className = 'mote';
+      s.textContent = pool[i % pool.length];
+      s.style.left = (6 + Math.random() * 88) + '%';
+      s.style.top = (8 + Math.random() * 78) + '%';
+      s.style.animationDuration = (16 + Math.random() * 16) + 's';
+      s.style.animationDelay = (-Math.random() * 20) + 's';
+      frag.appendChild(s);
+    }
+    host.appendChild(frag);
+  })();
+
+  /* ---- engine curve: dash lengths measured from the paths themselves, and a
+     head point that rides the trend as it is drawn ---- */
+  (function initChartDraw(){
+    var chart = doc.getElementById('engine-chart');
+    if(!chart) return;
+    var curve = chart.querySelector('.curve');
+    var proj = chart.querySelector('.curve-proj');
+    var head = doc.getElementById('chart-head');
+    if(!curve) return;
+
+    [curve, proj].forEach(function(p){
+      if(!p) return;
+      try { p.style.setProperty('--len', Math.ceil(p.getTotalLength())); } catch(e){}
+    });
+
+    function ride(){
+      if(!head || REDUCED) return;
+      var L = curve.getTotalLength(), t0 = null, DUR = 1800;
+      function frame(ts){
+        if(t0 === null) t0 = ts;
+        var p = Math.min(1, (ts - t0) / DUR);
+        var e = 1 - Math.pow(1 - p, 3);
+        var pt = curve.getPointAtLength(L * e);
+        head.setAttribute('cx', pt.x); head.setAttribute('cy', pt.y);
+        if(p < 1) requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
+    }
+
+    function play(){
+      chart.classList.add('chart-drawn');
+      var nodes = chart.querySelectorAll('.node');
+      nodes.forEach(function(n, i){
+        n.style.transitionDelay = REDUCED ? '0s' : (0.35 + i * 0.10) + 's';
+      });
+      ride();
+    }
+
+    if(REDUCED || !('IntersectionObserver' in window)){ play(); return; }
+    var obs = new IntersectionObserver(function(en){
+      if(!en[0].isIntersecting) return;
+      obs.disconnect(); play();
+    }, { threshold:.25 });
+    obs.observe(chart);
+  })();
+
+  /* ---- solution figures: the bars of the panel on screen grow in ---- */
+  (function initSolPlots(){
+    var panels = Array.prototype.slice.call(doc.querySelectorAll('[data-sol-panel]'));
+    if(!panels.length) return;
+    function plot(p){
+      p.classList.remove('is-plotted');
+      if(REDUCED){ p.classList.add('is-plotted'); return; }
+      requestAnimationFrame(function(){ requestAnimationFrame(function(){ p.classList.add('is-plotted'); }); });
+    }
+    /* the first panel plays when the section is reached, the rest when selected */
+    if('IntersectionObserver' in window){
+      var obs = new IntersectionObserver(function(en){
+        if(!en[0].isIntersecting) return;
+        obs.disconnect();
+        var open = panels.filter(function(p){ return !p.hidden; })[0];
+        if(open) plot(open);
+      }, { threshold:.2 });
+      obs.observe(doc.getElementById('solucoes'));
+    } else { panels.forEach(plot); }
+
+    doc.querySelectorAll('[data-sol]').forEach(function(tab){
+      tab.addEventListener('click', function(){
+        var p = doc.querySelector('[data-sol-panel="' + tab.getAttribute('data-sol') + '"]');
+        if(p) plot(p);
+      });
+    });
+  })();
+
+  /* ---- pillars: each instrument resolves as its row is reached ---- */
+  (function initPillarReveal(){
+    var pillars = Array.prototype.slice.call(doc.querySelectorAll('[data-pillar]'));
+    if(!pillars.length) return;
+    if(REDUCED || !('IntersectionObserver' in window)){
+      pillars.forEach(function(p){ p.classList.add('is-in-view'); });
+      return;
+    }
+    var obs = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if(!en.isIntersecting) return;
+        en.target.classList.add('is-in-view');
+        obs.unobserve(en.target);
+      });
+    }, { threshold:.35 });
+    pillars.forEach(function(p){ obs.observe(p); });
+  })();
+
   /* ==========================================================================
      HERO FIELD — the six formations of the actuarial pipeline
      Points are the data. Each formation is a real arrangement: noise, lattice,
@@ -2283,7 +2532,7 @@ legend{ padding:0; }
           'void main(){',
           '  float d = length(gl_PointCoord - 0.5);',
           '  if(d > 0.5) discard;',
-          '  float a = smoothstep(0.5, 0.08, d) * vA * 0.52;',
+          '  float a = smoothstep(0.5, 0.08, d) * vA * 0.40;',
           '  gl_FragColor = vec4(mix(uA, uB, vT), a);',
           '}'
         ].join('\n')
@@ -2298,7 +2547,7 @@ legend{ padding:0; }
         renderer.setSize(r.width, r.height, false);
         camera.aspect = r.width / r.height;
         /* the copy occupies the left; push the field right so they do not fight */
-        points.position.x = r.width > 900 ? 1.5 : 0;
+        points.position.x = r.width > 900 ? 0.7 : 0;
         camera.updateProjectionMatrix();
       }
       resize();
@@ -2444,15 +2693,36 @@ legend{ padding:0; }
     });
 
     function dec(n, d){ return n.toFixed(d).replace('.', currentLang === 'en' ? '.' : ','); }
-    function paintMetrics(kind){
+
+    /* the numbers travel to the new scenario at the same pace as the cloud, so
+       the readout and the picture are visibly one event */
+    var shown = { expected:0, var95:0, tail:0, sd:0 }, tween = null;
+    function paintMetrics(kind, animate){
       var m = metrics[kind];
       readout.setAttribute('data-scenario', kind);
-      readout.querySelector('[data-metric="expected"]').textContent = dec(m.mean, 2);
-      readout.querySelector('[data-metric="var"]').textContent = dec(m.var95, 2);
-      readout.querySelector('[data-metric="tail"]').textContent = dec(m.tail, 1) + '%';
-      readout.querySelector('[data-metric="sigma"]').textContent = dec(m.sd, 2);
+      var from = { expected:shown.expected, var95:shown.var95, tail:shown.tail, sd:shown.sd };
+      var to = { expected:m.mean, var95:m.var95, tail:m.tail, sd:m.sd };
+      function put(v){
+        readout.querySelector('[data-metric="expected"]').textContent = dec(v.expected, 2);
+        readout.querySelector('[data-metric="var"]').textContent = dec(v.var95, 2);
+        readout.querySelector('[data-metric="tail"]').textContent = dec(v.tail, 1) + '%';
+        readout.querySelector('[data-metric="sigma"]').textContent = dec(v.sd, 2);
+        shown = { expected:v.expected, var95:v.var95, tail:v.tail, sd:v.sd };
+      }
+      if(!animate || REDUCED){ put(to); return; }
+      if(tween) cancelAnimationFrame(tween);
+      var t0 = null, DUR = 1150;
+      (function frame(ts){
+        if(t0 === null) t0 = ts;
+        var p = Math.min(1, (ts - t0) / DUR), e = 1 - Math.pow(1 - p, 3);
+        put({ expected:from.expected + (to.expected - from.expected) * e,
+              var95:from.var95 + (to.var95 - from.var95) * e,
+              tail:from.tail + (to.tail - from.tail) * e,
+              sd:from.sd + (to.sd - from.sd) * e });
+        if(p < 1) tween = requestAnimationFrame(frame);
+      })(performance.now());
     }
-    paintMetrics('base');
+    paintMetrics('base', false);
 
     var tabs = Array.prototype.slice.call(doc.querySelectorAll('.scenario-tab'));
     var setScene = null, current = 'base';
@@ -2465,7 +2735,7 @@ legend{ padding:0; }
         tb.tabIndex = on ? 0 : -1;
         if(on && focus) tb.focus();
       });
-      paintMetrics(kind);
+      paintMetrics(kind, true);
       if(setScene) setScene(kind);
     }
 

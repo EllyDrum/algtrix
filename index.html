@@ -720,16 +720,22 @@ legend{ padding:0; }
 /* the plate is what makes a dark third-party mark legible here without
    altering a single one of its colours */
 .partner-plate{
-  display:flex; align-items:center; justify-content:flex-start;
-  background:#F2F0F7; border-radius:var(--r-sm);
-  padding:1.15rem 1.4rem; min-height:104px;
-  opacity:.72;
-  transition:opacity var(--dur-4) var(--ease-out), transform var(--dur-4) var(--ease-out);
+  display:flex; align-items:center; justify-content:center;
+  background:#F4F2FA; border-radius:var(--r-sm);
+  padding:1.25rem 1.5rem; min-height:112px;
+  transition:transform var(--dur-4) var(--ease-out), box-shadow var(--dur-4) var(--ease-out);
 }
-.partner-plate img{ height:auto; width:auto; max-height:58px; max-width:100%; }
-.partner:hover .partner-plate,.partner:focus-within .partner-plate{ opacity:1; transform:translateY(-2px); }
+/* the mark keeps its own colours; only its presence is dialled back at rest */
+.partner-plate img{
+  height:auto; width:auto; max-height:62px; max-width:100%;
+  opacity:.88; transition:opacity var(--dur-4) var(--ease-out);
+}
+.partner:hover .partner-plate,.partner:focus-within .partner-plate{
+  transform:translateY(-3px); box-shadow:var(--elev-2);
+}
+.partner:hover .partner-plate img,.partner:focus-within .partner-plate img{ opacity:1; }
 @media (prefers-reduced-motion:reduce){
-  .partner-plate{ opacity:1; }
+  .partner-plate img{ opacity:1; }
   .partner:hover .partner-plate{ transform:none; }
 }
 .partner-note{

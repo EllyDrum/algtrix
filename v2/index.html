@@ -335,7 +335,7 @@ legend{ padding:0; }
 .stage-row{
   display:flex; align-items:center; justify-content:flex-end; gap:.7rem;
   font-family:var(--font-mono); font-size:.6875rem; letter-spacing:.13em; text-transform:uppercase;
-  color:#65758C; transition:color .5s var(--ease-out);
+  color:#8A97AB; transition:color .5s var(--ease-out);
 }
 .stage-row .stage-idx{ font-size:.625rem; opacity:.55; }
 .stage-row .stage-bar{
@@ -345,13 +345,13 @@ legend{ padding:0; }
 }
 .stage-row.is-active{ color:var(--cyan-300); }
 .stage-row.is-active .stage-bar{ transform:scaleX(1); opacity:1; }
-.stage-row.is-done{ color:#8695AC; }
+.stage-row.is-done{ color:#9AA7BA; }
 
 /* live measurements describing the field itself — never fabricated business data */
 .hero-meta{
   position:absolute; z-index:2; left:var(--gutter); bottom:clamp(2rem,5vh,3rem);
   display:flex; align-items:center; gap:1.35rem; flex-wrap:wrap;
-  font-family:var(--font-mono); font-size:.6875rem; letter-spacing:.1em; color:#5F6E85;
+  font-family:var(--font-mono); font-size:.6875rem; letter-spacing:.1em; color:#8A97AB;
 }
 .hero-meta b{ color:var(--cyan-400); font-weight:500; }
 .hero-scroll{ display:flex; align-items:center; gap:.55rem; text-transform:uppercase; letter-spacing:.16em; }
@@ -364,7 +364,12 @@ legend{ padding:0; }
 /* ==========================================================================
    06 · DATA PATH — six stages; here the numbers ARE the information
    ========================================================================== */
-.path-head{ display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:var(--s-5); }
+.path-head,.engine-head{
+  display:grid; grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);
+  gap:clamp(1.5rem,4vw,4rem); align-items:end;
+}
+.path-head .h-sub,.engine-head .h-sub{ margin-top:0; }
+@media (max-width:900px){ .path-head,.engine-head{ grid-template-columns:1fr; } .path-head .h-sub,.engine-head .h-sub{ margin-top:var(--s-4); } }
 .path-track{ margin-top:clamp(3rem,7vh,5rem); position:relative; }
 .path-track::before{
   content:''; position:absolute; left:0; right:0; top:0; height:1px; background:var(--line);
@@ -406,7 +411,6 @@ legend{ padding:0; }
    07 · INTELLIGENCE ENGINE — a conceptual instrument panel, clearly labeled
    ========================================================================== */
 .engine{ background:var(--ink-900); }
-.engine-head{ display:flex; flex-wrap:wrap; gap:var(--s-6); align-items:flex-end; justify-content:space-between; }
 .engine-panel{
   margin-top:clamp(2.5rem,6vh,4rem);
   background:var(--ink-850);
@@ -421,16 +425,17 @@ legend{ padding:0; }
   padding-bottom:var(--s-4); margin-bottom:var(--s-5); border-bottom:1px solid var(--line);
 }
 .panel-title{ font-family:var(--font-mono); font-size:.6875rem; letter-spacing:.15em; text-transform:uppercase; color:var(--fg-dim); }
-.panel-legend{ display:flex; gap:1rem; font-family:var(--font-mono); font-size:.625rem; letter-spacing:.1em; color:#5F6E85; }
+.panel-legend{ display:flex; gap:1rem; font-family:var(--font-mono); font-size:.625rem; letter-spacing:.1em; color:#8A97AB; }
 .panel-legend i{ display:inline-block; width:12px; height:2px; margin-right:.4rem; vertical-align:middle; border-radius:2px; }
 
 .chart-wrap{ position:relative; }
 .chart{ width:100%; height:auto; overflow:visible; touch-action:pan-y; }
-.chart .ax{ stroke:var(--line); stroke-width:1; }
-.chart .ax-label{ font-family:var(--font-mono); font-size:8px; fill:#5F6E85; letter-spacing:.06em; }
-.chart .band{ fill:rgba(92,73,144,.20); }
-.chart .curve{ fill:none; stroke:var(--cyan-400); stroke-width:1.75; stroke-linecap:round; stroke-linejoin:round; }
-.chart .curve-proj{ fill:none; stroke:var(--violet-500); stroke-width:1.5; stroke-dasharray:4 4; }
+.chart .ax,.sol-figure .ax{ stroke:var(--line-strong); stroke-width:1; fill:none; }
+.chart .ax-label,.sol-figure .ax-label{ font-family:var(--font-mono); font-size:8px; fill:#8A97AB; letter-spacing:.06em; }
+.chart .band,.sol-figure .band{ fill:rgba(92,73,144,.22); stroke:none; }
+.chart .curve,.sol-figure .curve{ fill:none; stroke:var(--cyan-400); stroke-width:1.75; stroke-linecap:round; stroke-linejoin:round; }
+.chart .curve-proj,.sol-figure .curve-proj{ fill:none; stroke:var(--violet-500); stroke-width:1.5; stroke-dasharray:4 4; }
+.sol-figure .pv-dot{ fill:var(--cyan-300); }
 .chart .node{ fill:var(--ink-850); stroke:var(--cyan-400); stroke-width:1.5; cursor:pointer; transition:r .25s var(--ease-out), fill .25s; }
 .chart .node:hover,.chart .node.is-on{ fill:var(--cyan-300); r:5.5; }
 .chart .scan{ stroke:var(--cyan-300); stroke-width:1; opacity:0; transition:opacity .2s; }
@@ -463,7 +468,7 @@ legend{ padding:0; }
 
 .disclaimer{
   margin-top:var(--s-4); font-family:var(--font-mono); font-size:.625rem;
-  letter-spacing:.08em; color:#5F6E85; display:flex; align-items:center; gap:.5rem;
+  letter-spacing:.08em; color:#8A97AB; display:flex; align-items:center; gap:.5rem;
 }
 .disclaimer::before{ content:''; width:14px; height:1px; background:currentColor; flex:none; }
 
@@ -499,7 +504,7 @@ legend{ padding:0; }
   font-weight:400; letter-spacing:-.02em; color:var(--fg-muted); transition:color .35s;
 }
 .sol-item[aria-selected="true"] .sol-item-name{ color:var(--fg); }
-.sol-item-hint{ display:block; font-size:.8125rem; color:#65758C; margin-top:.2rem; line-height:1.45; }
+.sol-item-hint{ display:block; font-size:.8125rem; color:#8A97AB; margin-top:.2rem; line-height:1.45; }
 
 .sol-panel{ background:var(--ink-900); padding:clamp(1.5rem,3vw,2.5rem); min-width:0; position:relative; }
 .sol-body[hidden]{ display:none; }
@@ -536,7 +541,7 @@ legend{ padding:0; }
 .risk-canvas{ position:absolute; inset:0; width:100%; height:100%; }
 .risk-axis{
   position:absolute; inset:0; pointer-events:none;
-  font-family:var(--font-mono); font-size:.625rem; letter-spacing:.1em; color:#54637A;
+  font-family:var(--font-mono); font-size:.625rem; letter-spacing:.1em; color:#8A97AB;
 }
 .risk-axis span{ position:absolute; }
 .risk-axis .ax-x{ left:50%; bottom:2%; transform:translateX(-50%); }
@@ -634,11 +639,11 @@ legend{ padding:0; }
 }
 .partner:hover{ background:var(--ink-850); }
 .partner img{
-  height:34px; width:auto; object-fit:contain; object-position:left center;
-  filter:grayscale(1) brightness(1.9) contrast(.85); opacity:.5;
+  height:58px; width:auto; max-width:100%; object-fit:contain; object-position:left center;
+  filter:grayscale(1); opacity:.55;
   transition:filter .5s var(--ease-out), opacity .5s var(--ease-out);
 }
-.partner:hover img{ filter:none; opacity:1; }
+.partner:hover img,.partner:focus-within img{ filter:none; opacity:1; }
 .partner-note{
   font-size:.875rem; line-height:1.6; color:var(--fg-dim);
   opacity:0; transform:translateY(6px);
@@ -654,7 +659,7 @@ legend{ padding:0; }
 .close-canvas.is-live{ opacity:1; }
 .close::after{
   content:''; position:absolute; inset:0; pointer-events:none;
-  background:radial-gradient(60% 60% at 50% 55%, transparent 40%, var(--ink-950) 100%);
+  background:radial-gradient(76% 76% at 50% 52%, transparent 58%, var(--ink-950) 100%);
 }
 .close-inner{ position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; gap:var(--s-5); }
 .close h2{
@@ -722,7 +727,7 @@ legend{ padding:0; }
   transition:box-shadow .3s var(--ease-out), background-color .3s;
 }
 .contact-wizard textarea{ min-height:8.5rem; resize:vertical; line-height:1.6; }
-.contact-wizard input::placeholder,.contact-wizard textarea::placeholder{ color:#6E7D93; }
+.contact-wizard input::placeholder,.contact-wizard textarea::placeholder{ color:#8A97AB; }
 .contact-wizard input:hover,.contact-wizard textarea:hover{ background:var(--ink-800); }
 .contact-wizard input:focus,.contact-wizard textarea:focus{ outline:none; box-shadow:inset 0 0 0 1px var(--cyan-400); background:var(--ink-800); }
 .contact-wizard .has-error{ box-shadow:inset 0 0 0 1px var(--risk); }
@@ -743,7 +748,7 @@ legend{ padding:0; }
 .footer-brand{ display:flex; align-items:center; gap:var(--s-4); }
 .footer-brand img{ height:22px; width:auto; opacity:.7; }
 .footer-tag{ font-size:.8125rem; color:var(--fg-dim); }
-.footer-legal{ font-size:.8125rem; color:#5F6E85; }
+.footer-legal{ font-size:.8125rem; color:#8A97AB; }
 .back-to-top{ font-family:var(--font-mono); font-size:.6875rem; letter-spacing:.14em; text-transform:uppercase; color:var(--fg-dim); transition:color .25s; }
 .back-to-top:hover{ color:var(--cyan-300); }
 
@@ -1112,7 +1117,7 @@ legend{ padding:0; }
         <dl class="risk-readout" id="risk-readout" data-scenario="base" aria-live="polite">
           <div class="risk-metric"><dt data-i18n="risk.mExpected">Perda esperada E[X]</dt><dd data-metric="expected">1,00</dd></div>
           <div class="risk-metric"><dt data-i18n="risk.mVar">VaR 95%</dt><dd data-metric="var">2,74</dd></div>
-          <div class="risk-metric"><dt data-i18n="risk.mTail">P(X &gt; 3σ)</dt><dd data-metric="tail">1,8%</dd></div>
+          <div class="risk-metric"><dt data-i18n="risk.mTail">P(X &gt; 3)</dt><dd data-metric="tail">1,8%</dd></div>
           <div class="risk-metric"><dt data-i18n="risk.mSigma">Dispersão σ</dt><dd data-metric="sigma">0,62</dd></div>
         </dl>
 
@@ -1410,7 +1415,7 @@ legend{ padding:0; }
         sub: 'A mesma carteira se comporta de formas diferentes conforme o cenário. Alterne entre eles e observe a distribuição se reorganizar.',
         axX: 'severidade da perda →', axY: 'frequência →', ariaTabs: 'Cenário',
         tabBase: 'Base', tabProj: 'Projeção', tabStress: 'Estresse',
-        mExpected: 'Perda esperada E[X]', mVar: 'VaR 95%', mTail: 'P(X > 3σ)', mSigma: 'Dispersão σ',
+        mExpected: 'Perda esperada E[X]', mVar: 'VaR 95%', mTail: 'P(X > 3)', mSigma: 'Dispersão σ',
         note: 'Modelo conceitual de carteira. Os três cenários usam a mesma distribuição de base, alterando apenas a cauda — que é, na prática, onde o resultado de uma operadora se decide.'
       },
       vision: {
@@ -1508,7 +1513,7 @@ legend{ padding:0; }
         sub: 'The same portfolio behaves differently under each scenario. Switch between them and watch the distribution reorganise.',
         axX: 'loss severity →', axY: 'frequency →', ariaTabs: 'Scenario',
         tabBase: 'Base', tabProj: 'Projection', tabStress: 'Stress',
-        mExpected: 'Expected loss E[X]', mVar: 'VaR 95%', mTail: 'P(X > 3σ)', mSigma: 'Dispersion σ',
+        mExpected: 'Expected loss E[X]', mVar: 'VaR 95%', mTail: 'P(X > 3)', mSigma: 'Dispersion σ',
         note: 'Conceptual portfolio model. All three scenarios share the same base distribution and change only the tail — which is, in practice, where an operator\'s result is decided.'
       },
       vision: {
@@ -1606,7 +1611,7 @@ legend{ padding:0; }
         sub: 'La misma cartera se comporta de formas distintas según el escenario. Alterne entre ellos y observe la distribución reorganizarse.',
         axX: 'severidad de la pérdida →', axY: 'frecuencia →', ariaTabs: 'Escenario',
         tabBase: 'Base', tabProj: 'Proyección', tabStress: 'Estrés',
-        mExpected: 'Pérdida esperada E[X]', mVar: 'VaR 95%', mTail: 'P(X > 3σ)', mSigma: 'Dispersión σ',
+        mExpected: 'Pérdida esperada E[X]', mVar: 'VaR 95%', mTail: 'P(X > 3)', mSigma: 'Dispersión σ',
         note: 'Modelo conceptual de cartera. Los tres escenarios usan la misma distribución base y solo cambian la cola — que es, en la práctica, donde se decide el resultado de una operadora.'
       },
       vision: {
@@ -2296,8 +2301,8 @@ legend{ padding:0; }
       var sd = Math.sqrt(sq / n);
       var sorted = Array.prototype.slice.call(vals).sort(function(a, b){ return a - b; });
       var var95 = sorted[Math.floor(n * .95)];
-      var thr = mean + 3 * sd, over = 0;
-      for(i = 0; i < n; i++) if(vals[i] > thr) over++;
+      var over = 0;                                  /* fixed threshold: 3x the base expectation */
+      for(i = 0; i < n; i++) if(vals[i] > 3) over++;
       return { mean:mean, sd:sd, var95:var95, tail:over / n * 100 };
     }
 
@@ -2308,7 +2313,7 @@ legend{ padding:0; }
       for(var i = 0; i < N; i++){
         var v = Math.min(vals[i], 9);
         var i3 = i * 3;
-        pos[i3]   = v * 1.05 - 2.3;
+        pos[i3]   = v * 1.00 - 1.35;
         pos[i3+1] = (Math.random() * Math.exp(-v * .42)) * 4.4 - 1.9;
         pos[i3+2] = (Math.random() - .5) * 2.4;
       }
@@ -2368,7 +2373,7 @@ legend{ padding:0; }
 
       var scene = new THREE.Scene();
       var camera = new THREE.PerspectiveCamera(48, 1, .1, 60);
-      camera.position.set(0, .3, 8.4);
+      camera.position.set(0, .15, 7.6);
 
       var geo = new THREE.BufferGeometry();
       var rnd = new Float32Array(N);
@@ -2444,7 +2449,7 @@ legend{ padding:0; }
         return out;
       }
 
-      var visible = true, last = performance.now();
+      var visible = true, last = performance.now(), tilt = 0;
       if('IntersectionObserver' in window){
         new IntersectionObserver(function(en){ visible = en[0].isIntersecting; }, { threshold:.05 })
           .observe(doc.getElementById('risco'));
@@ -2461,7 +2466,10 @@ legend{ padding:0; }
           if(mixT >= 1){ mixT = 1; morphing = false; }
           mat.uniforms.uMix.value = mixT;
         }
-        pts.rotation.y += dt * .085;
+        /* bounded tilt, not free spin: the printed axes stay true */
+        tilt += dt;
+        pts.rotation.y = Math.sin(tilt * .34) * .42;
+        pts.rotation.x = Math.sin(tilt * .21) * .10;
         renderer.render(scene, camera);
       })(performance.now());
     }).catch(function(){ /* metrics and tabs still work without WebGL */ });
@@ -2479,7 +2487,7 @@ legend{ padding:0; }
 
     var DPR = Math.min(window.devicePixelRatio || 1, 2);
     var W = 0, H = 0, parts = [], running = false, t0 = 0;
-    var COUNT = window.innerWidth < 860 ? 130 : 320;
+    var COUNT = window.innerWidth < 860 ? 220 : 560;
 
     function seed(){
       parts = [];
@@ -2488,10 +2496,10 @@ legend{ padding:0; }
         parts.push({
           sx: W / 2 + Math.cos(a) * r * W * .62,
           sy: H / 2 + Math.sin(a) * r * H * .78,
-          tx: W / 2 + (Math.random() - .5) * W * .30,
-          ty: H * .62 + (Math.random() - .5) * 10,
+          tx: W / 2 + (Math.random() - .5) * W * .22,
+          ty: H * .68 + (Math.random() - .5) * 7,
           d: Math.random() * .45,
-          s: .7 + Math.random() * 1.5
+          s: .9 + Math.random() * 1.8
         });
       }
     }
@@ -2511,7 +2519,7 @@ legend{ padding:0; }
         var e = 1 - Math.pow(1 - k, 3);
         var x = o.sx + (o.tx - o.sx) * e;
         var y = o.sy + (o.ty - o.sy) * e;
-        ctx.globalAlpha = .16 + e * .5;
+        ctx.globalAlpha = .28 + e * .62;
         ctx.fillStyle = e > .75 ? '#7ED4DD' : '#41B7C4';
         ctx.beginPath();
         ctx.arc(x, y, o.s * (1 - e * .35), 0, 6.2832);
